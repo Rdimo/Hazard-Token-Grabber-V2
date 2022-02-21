@@ -17,6 +17,7 @@ Love ❌ code ✅
 #### upon running the file you will get the following sent to your webhook:
  -  Username
  -  ComputerName
+ -  Windows Product Key
  -  IP
  -  City
  -  Region
