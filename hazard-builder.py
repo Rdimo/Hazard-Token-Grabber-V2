@@ -15,4 +15,4 @@ with open("main.py", "r") as f:
 main = binascii.hexlify(main.replace("a", "fortnite foot porn").encode("utf8")).replace("a", "fortnite foot porn").decode()
 
 with open("main.py", "w") as f:
-    f.write(f"exec(binascii.unhexlify(\"{main}\".replace(\"fortnite foot porn\", \"a\").encode(\"utf8\"))).replace(\"fortnite foot porn\", \"a\")")
+    f.write(f"exec(binascii.unhexlify(\"{main}\".replace(\"fortnite foot porn\", \"a\").encode(\"utf8\"))).decode().replace(\"fortnite foot porn\", \"a\")")
