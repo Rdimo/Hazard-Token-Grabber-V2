@@ -1,9 +1,9 @@
-<p align="center">
+<div style="text-align:center">
   <img src="https://img.shields.io/github/languages/top/Rdimo/Hazard-Token-Grabber-V2?style=flat-square">
   <img src="https://img.shields.io/github/last-commit/Rdimo/Hazard-Token-Grabber-V2?style=flat-square">
   <img src="https://img.shields.io/github/stars/Rdimo/Hazard-Token-Grabber-V2?color=%23daff00&label=Stars&style=flat-square">
   <img src="https://img.shields.io/github/forks/Rdimo/Hazard-Token-Grabber-V2?color=%23daff00&label=Forks&style=flat-square">
-</p>
+</div>
 
 ## ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🌟 Star this Repository if you enjoy Hazard Stealer V2!
 **NOTE:** This is a free software. It will not be undetected from antivirus software, or have custom features. Remember, this is 100% free. If you want a better one, join [CheatAway](https://cheataway.com) and purchase one.
@@ -25,7 +25,7 @@ Love ❌ code ✅
 -  Their Passwords & Credit Cards for Discord. (Updates when they change it)
 -  All Passwords and Cookies from the Chrome Browser.
 > The webhook notification looks like this:
-<p align="left"><img src="https://user-images.githubusercontent.com/80375661/159514536-d8249923-adbe-4b9e-a187-6b028941f4a7.png"></p>
+<p><img src="https://user-images.githubusercontent.com/80375661/159514536-d8249923-adbe-4b9e-a187-6b028941f4a7.png"></p>
  
 ### 📁・Setting up Hazard Token Grabber.V2
 1. Install python if you have not already. [(Link Here)](https://www.python.org)
@@ -47,6 +47,6 @@ Add these into the command when creating the exe if you want
 | ------------------------------------     |
 | `-n name` The name of the compiled EXE (Defaults to the name of the original .py file)    |
 | `-i icon.ico` The icon. You can specify a directory to an icon file, or do NONE for a default EXE icon.    |
-| `--clean` Removes all temporary files so you only have what you need.    |
+| `--clean` Removes all temporary files, so you only have what you need.    |
 | `--uac-admin` Modified the MANIFEST so that it will request UAC permissions upon running. |
 | `--hidden-import MODULENAME` Adds a module without it being present in the script. |
