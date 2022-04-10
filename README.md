@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/github/forks/Rdimo/Hazard-Token-Grabber-V2?color=%23daff00&label=Forks&style=flat-square">
 </p>
 
-<h3 allign="center">🌟 Star this Repository if you enjoy Hazard Stealer V2!</h3>
+<h3 align="center">🌟 Star this Repository if you enjoy Hazard Stealer V2!</h3>
 
 **NOTE:** This is a free software. It will not be undetected from antivirus software, or have custom features. Remember, this is 100% free. If you want a better one, join [CheatAway](https://cheataway.com/) and purchase one.
 
