@@ -1,7 +1,8 @@
 @echo off
 color 0a
 echo.
-set /p a="Enter the exe name : "
+echo What would you like the EXE Name to be? NOTE: You can always rename the file later!
+set /p a="Enter a name (Eg: Stealer.exe) > "
 if [%a%]==[] ( 
     echo.
     echo bro enter a name

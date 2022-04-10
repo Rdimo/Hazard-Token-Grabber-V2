@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/github/forks/Rdimo/Hazard-Token-Grabber-V2?color=%23daff00&label=Forks&style=flat-square">
 </p>
 
-## ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🌟 Star this Repository if you enjoy Hazard Stealer V2!
+<h3 align="center">🌟 Star this Repository if you enjoy Hazard Stealer V2!</h3>
 
 **NOTE:** This is a free software. It will not be undetected from antivirus software, or have custom features. Remember, this is 100% free. If you want a better one, join [CheatAway](https://cheataway.com/) and purchase one.
 
@@ -20,18 +20,18 @@ Love ❌ code ✅
 - User Name
 - Computer Name
 - Windows Product Key & Build Info
-- Pretty Fast Even if it Was Made With Python
 - IP & Geolocation. (Country, City, Google Maps Location)
-- A screenshot of all their monitors
-- Roblox Cookies
+- Desktop Screenshot (All Monitors)
+- Roblox Cookies.
 - All valid/working discord tokens. (Bypasses BetterDiscord, Token Protector and Discord's new encryption)
-- Discord 2FA Codes for accounts with 2FA enabled
-- Their Passwords & Credit Cards for Discord (updates when they change it)
-- All Passwords and Cookies from the Chrome Browser
-  > The webhook notification looks like this:
-  <p align="left"><img src="https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/info.png">
+- Discord 2FA Codes for Accounts with it enabled.
+- Their Passwords & Credit Cards for Discord. (Injection, Updates when they change it)
+- All Passwords and Cookies from the Chrome Browser.
 
-### 📁・Setting up Hazard Token Grabber.V2
+**Webhook Notification:**
+<p align="left"><img src="https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/info.png">
+
+### 📁 Setting up Hazard Token Grabber V2
 
 1. Install python if you have not already. [(Link Here)](https://www.python.org/)
 2. Open up main.py with notepad or some other editor
@@ -40,7 +40,7 @@ Love ❌ code ✅
 5. A Window will open prompting for a name. Put something in such as "Token_Logger" (You can always rename the file later)
 6. Send the file to victims. 😈
 
-### ⚙・Manually Compiling Source Code
+### ⚙ Manually Compiling Source Code
 
 If you do not want to use the batch file, you can follow this guide:
 
@@ -49,7 +49,7 @@ If you do not want to use the batch file, you can follow this guide:
 3. Type: `pyinstaller --clean --onefile --noconsole -i NONE main.py`, you will see a lot of text popping up. Ignore it and wait.
 4. After it says its finishing, you can find the EXE file in the dist directory, located in the project root!
 
-### 💾・ More options
+### 💾 More options
 
 Add these into the command when creating the exe if you want
 | PyInstaller Options |
