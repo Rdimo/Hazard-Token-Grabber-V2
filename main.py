@@ -1,4 +1,5 @@
 import os
+print("Hello World!")
 import json
 import httpx
 import winreg
