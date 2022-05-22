@@ -4,3 +4,6 @@ pypiwin32
 pycryptodome
 pyinstaller>=4.9
 PIL-tools
+hmac
+pyasn1
+cryptography
