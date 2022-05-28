@@ -504,10 +504,11 @@ class Hazard_Token_Grabber_V2(functions):
                     region = data.get('region')
                     org = data.get('org')
                     loc = data.get('loc')
+                    googlemap = "https://www.google.com/maps/search/google+map++" + loc
                     break
-                except:
+                except Exception:
                     pass
-            except:
+            except Exception:
                 pass
                 
         _zipfile = os.path.join(
