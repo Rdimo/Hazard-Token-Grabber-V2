@@ -11,7 +11,7 @@ if [%a%]==[] (
 if [%a%] NEQ [] (
     echo.
     echo Name is: %a%
-    pyinstaller --clean --onefile --noconsole -i NONE -n %a% main.py
+    python -m pyinstaller --clean --onefile --noconsole -i NONE -n %a% main.py
     rmdir /s /q __pycache__
     rmdir /s /q build
     del /f / s /q %a%.spec
