@@ -3,5 +3,5 @@ pyotp
 psutil
 pypiwin32
 pycryptodome
-pyinstaller>=4.9
+pyinstaller>=5.0
 PIL-tools
