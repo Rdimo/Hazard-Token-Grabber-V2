@@ -180,6 +180,9 @@ join [cheataway](https://cheataway.com/invite) and do `!buy` to see preview of t
 ## <a id="changelog"></a>💭 〢 ChangeLog
 
 ```diff
+v1.8.8 ⋮ 2022-07-12
++ added builder
+
 v1.8.7 ⋮ 2022-06-30
 + now grabs minecraft accessToken and the jsons from the .minecraft folder
 + made the zip more cleaner and organized google info in Google folder and Minecraft in Minecraft folder
