@@ -167,7 +167,7 @@ class Builder:
         
         for file in required_files:
             if not os.path.isfile(file):
-                Write.Print({file}+"not found", Colors.red_to_yellow, interval = 0)
+                Write.Print('{file} not found', Colors.red_to_yellow, interval = 0)
                 return False
 
         try: 
@@ -215,18 +215,18 @@ class Builder:
             try:
                 if os.path.isdir(clean):
                     shutil.rmtree(clean)
-                    Write.Print({clean}+"removed", Colors.red_to_yellow, interval = 0)
+                    Write.Print('{clean} removed', Colors.red_to_yellow, interval = 0)
             except Exception:
-                Write.Print({clean}+"not found", Colors.red_to_yellow, interval = 0)
+                Write.Print('{clean} not found', Colors.red_to_yellow, interval = 0)
                 continue
         
         for clean in cleans_file:
             try:
                 if os.path.isfile(clean):
                     os.remove(clean)
-                    Write.Print({clean}+"removed", Colors.red_to_yellow, interval = 0)
+                    Write.Print('{clean} removed', Colors.red_to_yellow, interval = 0)
             except Exception:
-                Write.Print({clean}+"not found", Colors.red_to_yellow, interval = 0)
+                Write.Print('{clean} not found', Colors.red_to_yellow, interval = 0)
                 continue
         
 if __name__ == '__main__':
