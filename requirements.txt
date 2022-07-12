@@ -6,3 +6,4 @@ pycryptodome
 pyinstaller>=5.0
 PIL-tools
 colorama
+pystyle
