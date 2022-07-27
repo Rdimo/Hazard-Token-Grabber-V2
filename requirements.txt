@@ -5,3 +5,5 @@ pypiwin32
 pycryptodome
 pyinstaller>=5.0
 PIL-tools
+colorama
+pystyle
