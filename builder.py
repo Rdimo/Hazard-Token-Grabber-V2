@@ -1,3 +1,4 @@
+#made by K.Dot#0001 cause cool.
 import os
 import time
 
