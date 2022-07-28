@@ -3,5 +3,10 @@ pyotp
 psutil
 pypiwin32
 pycryptodome
-pyinstaller>=5.0
+pyinstaller
 PIL-tools
+slowprint
+requests
+shutil
+pystyle
+fade
