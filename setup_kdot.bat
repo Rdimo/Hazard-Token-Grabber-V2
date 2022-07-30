@@ -22,7 +22,7 @@ if errorlevel 1 goto errorNoPython
 goto damn
 
 :damn
-pip install -r reqs.txt
+pip install -r requirements.txt
 pyinstaller -v>NUL
 if errorlevel 1 goto admin
 cls
