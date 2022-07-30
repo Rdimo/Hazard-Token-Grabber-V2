@@ -1,5 +1,5 @@
 @echo off
-
+::made by K.Dot#0001
 color a
 
 :check_Permissions2
